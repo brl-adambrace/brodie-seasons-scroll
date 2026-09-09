@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seasons — Hero to Carousel scroll transition (test harness)</title>
+<style>
+  /* ===== TEST-HARNESS ONLY (do NOT paste into Webflow) ===== */
+  html{background:#000}
+  body{margin:0;background:#000;font-family:Inter,system-ui,sans-serif;color:#fff}
+  .harness-nav{height:64px;display:flex;align-items:center;padding:0 32px;color:#555;font-size:13px;letter-spacing:.02em;border-bottom:1px solid rgba(255,255,255,.06)}
+  .harness-spacer{height:100vh;display:flex;align-items:center;justify-content:center;color:#444;font-size:14px}
+  .harness-debug{position:fixed;left:12px;bottom:12px;z-index:99;font:12px/1.4 ui-monospace,Menlo,monospace;color:#9a9a9a;background:rgba(0,0,0,.6);padding:6px 8px;border-radius:6px;pointer-events:none}
+</style>
+</head>
+<body>
+  <div class="harness-nav">(site nav placeholder — 64px)</div>
+
+  <!-- ====================================================================
+       BRODIE — "12 Months. 4 Seasons." hero → season carousel (scroll transition)
+       PASTE EVERYTHING BETWEEN THE SSC:START / SSC:END MARKERS INTO A WEBFLOW EMBED
+       (or split: <style> → page head, markup → embed, <script> → page footer).
+
+       How it works
+         • The section pins for ~1.35 viewport heights of scroll (GSAP ScrollTrigger).
+         • The centre card starts full-bleed (scaled to the viewport) and eases down to
+           card size; the hero copy fades up + blurs out first.
+         • When the card lands, its content fades in as one group, then the left/right
+           cards fade in from their sides and the two paddles appear.
+         • Paddles / arrow keys / swipe / clicking a side card cycle the 4 cards in a loop;
+           the active card is always centred with equal peeks left and right.
+
+       Knobs (CSS vars on .ssc)   --ssc-card-pct (card size as % of viewport → hero scale
+         is derived from it), --ssc-gap, --ssc-radius, --ssc-pad, --ssc-side-shift,
+         --ssc-peek-dim (0 = no darkening on side cards), --ssc-arrow.
+       Knobs (JS consts)          PIN_DISTANCE, SCRUB, SLIDE_DUR, SLIDE_EASE + the
+         timeline positions in buildTimeline().
+       To edit copy: change the text inside the cards.   To swap an image: replace src.
+       ==================================================================== -->
+  <!-- SSC:START -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+  <style>
+    .ssc{
+      --ssc-card-pct:86;            /* card = 86% of the viewport on both axes; hero scale = 100/86 */
+      --ssc-gap:16px;
+      --ssc-radius:32px;
+      --ssc-pad:42px;
+      --ssc-arrow:56px;
+      --ssc-side-shift:72px;        /* distance the side cards travel while fading in */
+      --ssc-peek-dim:.22;           /* darkening on the non-active cards (0 = off) */
+      --ssc-text-secondary:#6b6765;
+      --ssc-vh:1vh;
+      --ssc-hero-scale:calc(100 / var(--ssc-card-pct));
+      --ssc-card-w:calc(var(--ssc-card-pct) * 1vw);
+      --ssc-card-h:calc(var(--ssc-card-pct) * var(--ssc-vh));
+      /* scroll-driven progress values (0 → 1), written by GSAP */
+      --t-shape:0;--t-content:0;--t-sides:0;--t-ui:0;
+      position:relative;background:#000;color:#fff;
+      font-family:'Inter',system-ui,-apple-system,sans-serif;
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+    }
+    @supports (height:1svh){.ssc{--ssc-vh:1svh}}
+    .ssc *{box-sizing:border-box}
+    .ssc-stage{position:relative;height:calc(100 * var(--ssc-vh));overflow:hidden;background:#000;touch-action:pan-y}
+
+    /* ---------- Hero copy (fades up + blurs out) ---------- */
+    .ssc-hero-copy{
+      position:absolute;left:0;top:0;z-index:3;max-width:900px;
+      padding:clamp(88px,15.5vh,160px) 80px 0;
+      display:flex;flex-direction:column;gap:16px;pointer-events:none;
+      will-change:transform,opacity,filter;
+    }
+    .ssc-hero-copy__eyebrow{margin:0;font-weight:500;font-size:18px;line-height:1.4;color:var(--ssc-text-secondary)}
+    .ssc-hero-copy__title{margin:0;font-weight:600;font-size:56px;line-height:1.1;letter-spacing:-2px;color:#fff;text-wrap:balance}
+    .ssc-hero-copy__title span{color:var(--ssc-text-secondary)}
+
+    /* ---------- Track / slots / cards ---------- */
+    .ssc-track{position:absolute;inset:0;z-index:1}
+    .ssc-slot{
+      position:absolute;left:50%;top:50%;
+      width:var(--ssc-card-w);height:var(--ssc-card-h);
+      margin:calc(var(--ssc-card-h) / -2) 0 0 calc(var(--ssc-card-w) / -2);
+      will-change:transform;
+    }
+    .ssc-slot.is-left{--dir:-1}
+    .ssc-slot.is-right{--dir:1}
+    .ssc.is-ready .ssc-slot:not(.is-active){cursor:pointer}
+    .ssc-card{
+      position:absolute;inset:0;overflow:hidden;background:#111;
+      border-radius:var(--ssc-radius);
+      transform:translate3d(calc(var(--dir,0) * var(--ssc-side-shift) * (1 - var(--t-sides))),0,0) scale(var(--card-scale,1));
+      transform-origin:50% 50%;
+    }
+    .ssc-slot.is-active .ssc-card{
+      --card-scale:calc(1 + (var(--ssc-hero-scale) - 1) * (1 - var(--t-shape)));
+      border-radius:calc(var(--ssc-radius) * var(--t-shape));
+    }
+    .ssc-slot:not(.is-active) .ssc-card{opacity:var(--t-sides)}
+    .ssc-card__img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+    .ssc-card__shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 42%,rgba(0,0,0,.6) 100%);pointer-events:none}
+    .ssc-card__dim{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .9s cubic-bezier(.32,.72,0,1)}
+    .ssc-slot:not(.is-active) .ssc-card__dim{opacity:var(--ssc-peek-dim)}
+    .ssc-card::after{ /* hairline */
+      content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.16);
+    }
+    .ssc-slot.is-active .ssc-card::after{opacity:var(--t-shape)}
+
+    /* ---------- Card content ---------- */
+    .ssc-card__content{
+      position:absolute;inset:0;padding:var(--ssc-pad);
+      display:flex;flex-direction:column;justify-content:space-between;
+    }
+    .ssc-slot.is-active .ssc-card__content{
+      opacity:var(--t-content);
+      transform:translate3d(0,calc(18px * (1 - var(--t-content))),0);
+    }
+    .ssc-card__top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .ssc-card__badge{width:96px;height:96px;display:block;flex:0 0 auto}
+    .ssc-card__label{font-weight:600;font-size:20px;line-height:1.35;color:#fff;text-align:right}
+    .ssc-card__bottom{display:flex;flex-direction:column;align-items:flex-start;gap:16px;max-width:920px}
+    .ssc-card__text{display:flex;flex-direction:column;gap:8px}
+    .ssc-card__title{margin:0;font-weight:600;font-size:56px;line-height:1.1;letter-spacing:-2px;color:#fff;text-wrap:balance}
+    .ssc-card__sub{margin:0;font-weight:600;font-size:30px;line-height:1.25;letter-spacing:-.15px;color:var(--accent);text-wrap:pretty}
+    .ssc-pill{
+      display:inline-flex;align-items:center;gap:5px;padding:4px 13px;border-radius:999px;
+      background:rgba(255,255,255,.5);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+      font-size:13px;font-weight:600;line-height:1.5;letter-spacing:-.4px;color:#f8f8f8;white-space:nowrap;
+    }
+    .ssc-pill::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent)}
+    .ssc-cta{
+      display:inline-flex;align-items:center;justify-content:center;min-width:232px;height:48px;padding:0 24px;
+      border-radius:48px;background:var(--accent);color:var(--cta-text);
+      font-weight:600;font-size:16px;line-height:1.5;text-decoration:none;white-space:nowrap;
+      transition:transform .15s ease-out,filter .2s ease-out;
+    }
+    .ssc-cta:hover{filter:brightness(1.07)}
+    .ssc-cta:active{transform:scale(.96)}
+    .ssc-slot:not(.is-active) .ssc-cta{pointer-events:none}
+
+    /* ---------- Paddles (fixed between the centre and side cards) ---------- */
+    .ssc-arrow{
+      position:absolute;top:50%;z-index:4;width:var(--ssc-arrow);height:var(--ssc-arrow);
+      margin-top:calc(var(--ssc-arrow) / -2);border-radius:50%;border:0;padding:0;cursor:pointer;
+      display:grid;place-items:center;color:#fff;
+      background:rgba(38,38,40,.62);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+      box-shadow:0 0 0 1px rgba(255,255,255,.12),0 10px 30px rgba(0,0,0,.35);
+      opacity:var(--t-ui);pointer-events:none;
+      transition:background-color .25s ease-out,transform .15s ease-out,box-shadow .25s ease-out;
+    }
+    .ssc.is-ready .ssc-arrow{pointer-events:auto}
+    .ssc-arrow:hover{background:rgba(64,64,66,.78);box-shadow:0 0 0 1px rgba(255,255,255,.22),0 10px 30px rgba(0,0,0,.35)}
+    .ssc-arrow:active{transform:scale(.96)}
+    .ssc-arrow:focus-visible{outline:2px solid #fff;outline-offset:3px}
+    .ssc-arrow svg{width:22px;height:22px;display:block}
+    .ssc-arrow--prev{left:calc(50% - var(--ssc-card-w) / 2 - var(--ssc-gap) / 2 - var(--ssc-arrow) / 2)}
+    .ssc-arrow--next{left:calc(50% + var(--ssc-card-w) / 2 + var(--ssc-gap) / 2 - var(--ssc-arrow) / 2)}
+    .ssc-arrow--prev svg{margin-left:-2px}
+    .ssc-arrow--next svg{margin-left:2px}
+
+    /* ---------- Responsive ---------- */
+    @media screen and (max-width:991px){
+      .ssc{--ssc-pad:32px;--ssc-arrow:48px;--ssc-side-shift:56px}
+      .ssc-hero-copy{padding:clamp(80px,14vh,120px) 48px 0}
+      .ssc-hero-copy__title,.ssc-card__title{font-size:44px;letter-spacing:-1.5px}
+      .ssc-card__sub{font-size:24px}
+      .ssc-card__badge{width:72px;height:72px}
+      .ssc-cta{min-width:200px}
+    }
+    @media screen and (max-width:767px){
+      .ssc{--ssc-card-pct:88;--ssc-gap:12px;--ssc-radius:24px;--ssc-pad:22px;--ssc-side-shift:40px}
+      .ssc-hero-copy{padding:88px 24px 0;gap:10px}
+      .ssc-hero-copy__eyebrow{font-size:15px}
+      .ssc-hero-copy__title,.ssc-card__title{font-size:36px;letter-spacing:-1px}
+      .ssc-card__sub{font-size:18px;line-height:1.3;letter-spacing:0}
+      .ssc-card__label{font-size:16px}
+      .ssc-card__badge{width:56px;height:56px}
+      .ssc-card__bottom{gap:14px}
+      .ssc-cta{min-width:0;height:44px;padding:0 22px;font-size:15px}
+      .ssc-pill{font-size:12px;padding:3px 11px}
+      .ssc-arrow{display:none} /* swipe / tap a side card to cycle on touch */
+    }
+    @media screen and (max-width:479px){
+      .ssc-hero-copy__title,.ssc-card__title{font-size:32px}
+      .ssc-card__sub{font-size:17px}
+    }
+    @media screen and (max-height:640px){
+      .ssc-hero-copy{padding-top:72px}
+      .ssc-hero-copy__title,.ssc-card__title{font-size:40px;letter-spacing:-1.2px}
+      .ssc-card__sub{font-size:22px}
+      .ssc-card__badge{width:64px;height:64px}
+    }
+    @media (prefers-reduced-motion:reduce){
+      .ssc{--t-shape:1;--t-content:1;--t-sides:1;--t-ui:1}
+      .ssc-hero-copy{display:none}
+      .ssc-card__dim,.ssc-arrow,.ssc-cta{transition:none}
+    }
+  </style>
+
+  <section class="ssc" id="seasons" data-start="1" aria-label="Brodie seasons">
+    <div class="ssc-stage">
+
+      <div class="ssc-hero-copy">
+        <p class="ssc-hero-copy__eyebrow">Your game never stops.</p>
+        <h2 class="ssc-hero-copy__title">12 Months. 4 Seasons.<br><span>Write Your Chapter.</span></h2>
+      </div>
+
+      <div class="ssc-track">
+
+        <!-- 1 · SUMMER (left) -->
+        <div class="ssc-slot is-left">
+          <article class="ssc-card" style="--accent:#f6a800;--cta-text:#1f1600">
+            <img class="ssc-card__img" src="assets/slide-summer.jpg" alt="Brodie Summer — athletes gathered around the table">
+            <div class="ssc-card__shade"></div>
+            <div class="ssc-card__dim"></div>
+            <div class="ssc-card__content">
+              <header class="ssc-card__top">
+                <img class="ssc-card__badge" src="assets/badge-summer.svg" alt="">
+                <span class="ssc-card__label">Summer &rsquo;26</span>
+              </header>
+              <div class="ssc-card__bottom">
+                <div class="ssc-card__text">
+                  <h3 class="ssc-card__title">Brodie Summer</h3>
+                  <p class="ssc-card__sub">When Summer Hits, The Lights Get Brighter.</p>
+                </div>
+                <a class="ssc-cta" href="#">Go All In</a>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- 2 · SLASHER (centre / hero) -->
+        <div class="ssc-slot is-active">
+          <article class="ssc-card" style="--accent:#ce102c;--cta-text:#280809">
+            <img class="ssc-card__img" src="assets/slide-slasher.jpg" alt="Slasher Season — Brodie athletes in a cinema" fetchpriority="high">
+            <div class="ssc-card__shade"></div>
+            <div class="ssc-card__dim"></div>
+            <div class="ssc-card__content">
+              <header class="ssc-card__top">
+                <img class="ssc-card__badge" src="assets/badge-slasher.svg" alt="">
+                <span class="ssc-card__label">Fall &rsquo;26</span>
+              </header>
+              <div class="ssc-card__bottom">
+                <span class="ssc-pill">Now Playing</span>
+                <div class="ssc-card__text">
+                  <h3 class="ssc-card__title">Slasher Season</h3>
+                  <p class="ssc-card__sub">When The Court Gets Darker, The Competition Gets Deadlier.</p>
+                </div>
+                <a class="ssc-cta" href="#">Wanna Play?!?</a>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- 3 · COLDEST WINTER (right) -->
+        <div class="ssc-slot is-right">
+          <article class="ssc-card" style="--accent:#0050b5;--cta-text:#ffffff">
+            <img class="ssc-card__img" src="assets/slide-coldest.jpg" alt="Coldest Winter — athletes on the ice in hockey jerseys">
+            <div class="ssc-card__shade"></div>
+            <div class="ssc-card__dim"></div>
+            <div class="ssc-card__content">
+              <header class="ssc-card__top">
+                <img class="ssc-card__badge" src="assets/badge-coldest.svg" alt="">
+                <span class="ssc-card__label">Winter &rsquo;27</span>
+              </header>
+              <div class="ssc-card__bottom">
+                <div class="ssc-card__text">
+                  <h3 class="ssc-card__title">Coldest Winter</h3>
+                  <p class="ssc-card__sub">From Blue Line To Baseline</p>
+                </div>
+                <a class="ssc-cta" href="#">Go All In</a>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- 4 · BRACKET SEASON (off-stage until cycled) -->
+        <div class="ssc-slot is-hidden" aria-hidden="true">
+          <article class="ssc-card" style="--accent:#369040;--cta-text:#ffffff">
+            <img class="ssc-card__img" src="assets/slide-bracket.jpg" alt="Bracket Season — athlete looking up through the net">
+            <div class="ssc-card__shade"></div>
+            <div class="ssc-card__dim"></div>
+            <div class="ssc-card__content">
+              <header class="ssc-card__top">
+                <img class="ssc-card__badge" src="assets/badge-bracket.svg" alt="">
+                <span class="ssc-card__label">Spring &rsquo;26</span>
+              </header>
+              <div class="ssc-card__bottom">
+                <div class="ssc-card__text">
+                  <h3 class="ssc-card__title">Bracket Season</h3>
+                  <p class="ssc-card__sub">From The Classroom To The Championship.</p>
+                </div>
+                <a class="ssc-cta" href="#">The Road Starts Here</a>
+              </div>
+            </div>
+          </article>
+        </div>
+
+      </div>
+
+      <button class="ssc-arrow ssc-arrow--prev" type="button" aria-label="Previous season">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <button class="ssc-arrow ssc-arrow--next" type="button" aria-label="Next season">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+
+    </div>
+  </section>
+
+  <script>
+  (function(){
+    var root=document.querySelector('.ssc'); if(!root) return;
+
+    /* ---- tunables ---- */
+    var PIN_DISTANCE='+=135%';   // how much scroll the transition consumes (of viewport height)
+    var SCRUB=0.5;               // seconds of catch-up smoothing on the scroll scrub (true = none)
+    var SLIDE_DUR=0.9, SLIDE_EASE='power3.out';   // paddle transition
+
+    /* ---- GSAP loader (dedupes with other blocks on the page) ---- */
+    var BASE='https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/';
+    function load(src){return new Promise(function(res,rej){var s=document.createElement('script');s.src=src;s.async=false;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
+    (window.gsap?Promise.resolve():load(BASE+'gsap.min.js'))
+      .then(function(){return window.ScrollTrigger?null:load(BASE+'ScrollTrigger.min.js');})
+      .then(init)
+      .catch(function(e){console.warn('[ssc] GSAP failed to load',e);root.classList.add('is-ready');});
+
+    function init(){
+      gsap.registerPlugin(ScrollTrigger);
+      ScrollTrigger.config({ignoreMobileResize:true});
+
+      var stage=root.querySelector('.ssc-stage');
+      var slots=Array.prototype.slice.call(root.querySelectorAll('.ssc-slot'));
+      var heroCopy=root.querySelector('.ssc-hero-copy');
+      var prevBtn=root.querySelector('.ssc-arrow--prev'), nextBtn=root.querySelector('.ssc-arrow--next');
+      var N=slots.length;
+      var active=parseInt(root.getAttribute('data-start'),10); if(isNaN(active)) active=Math.min(1,N-1);
+      var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var params=new URLSearchParams(location.search);
+      var debugP=params.has('p')?parseFloat(params.get('p')):null;      // ?p=0.5 → jump to 50% of the transition (testing)
+      var debugEl=document.getElementById('ssc-debug'); if(debugEl&&(params.has('debug')||debugP!==null)) debugEl.hidden=false;
+
+      /* ---- carousel geometry: every card sits at offset × (card width + gap) from centre ---- */
+      function gapPx(){return parseFloat(getComputedStyle(root).getPropertyValue('--ssc-gap'))||16;}
+      function step(){return slots[0].offsetWidth+gapPx();}
+      function offsetOf(i){var d=((i-active)%N+N)%N; if(d===0)return 0; if(d===1)return 1; if(d===N-1)return -1; return null;} // null = off-stage
+      function setRole(slot,o){
+        slot.classList.toggle('is-active',o===0);
+        slot.classList.toggle('is-left',o===-1);
+        slot.classList.toggle('is-right',o===1);
+        slot.classList.toggle('is-hidden',o===null);
+        if(o===null) slot.setAttribute('aria-hidden','true'); else slot.removeAttribute('aria-hidden');
+      }
+      var busy=false;
+      function layout(){
+        var S=step();
+        slots.forEach(function(slot,i){var o=offsetOf(i); gsap.killTweensOf(slot); gsap.set(slot,{x:(o===null?2:o)*S}); setRole(slot,o);});
+        busy=false;
+      }
+      function go(dir){
+        if(busy||!root.classList.contains('is-ready')) return;
+        busy=true;
+        var before=slots.map(function(_,i){return offsetOf(i);});
+        active=(active+dir+N)%N;
+        var S=step(), dur=reduce?0:SLIDE_DUR;
+        slots.forEach(function(slot,i){
+          var o0=before[i], o1=offsetOf(i);
+          setRole(slot,o1);
+          if(o1===null){        // leaving: keep travelling in the direction of motion, off stage
+            gsap.to(slot,{x:(o0-dir)*S,duration:dur,ease:SLIDE_EASE,overwrite:true});
+          }else if(o0===null){  // arriving: start just off stage on the incoming side
+            gsap.fromTo(slot,{x:(o1+dir)*S},{x:o1*S,duration:dur,ease:SLIDE_EASE,overwrite:true});
+          }else{
+            gsap.to(slot,{x:o1*S,duration:dur,ease:SLIDE_EASE,overwrite:true});
+          }
+        });
+        gsap.delayedCall(dur*0.5,function(){busy=false;});
+      }
+      layout();
+      if(params.has('debug')) window.__ssc={go:go,layout:layout,slots:slots,state:function(){return {active:active,busy:busy};}};
+
+      /* ---- controls ---- */
+      prevBtn.addEventListener('click',function(){go(-1);});
+      nextBtn.addEventListener('click',function(){go(1);});
+      slots.forEach(function(slot){
+        slot.addEventListener('click',function(e){
+          if(slot.classList.contains('is-left')){e.preventDefault();go(-1);}
+          else if(slot.classList.contains('is-right')){e.preventDefault();go(1);}
+        });
+      });
+      window.addEventListener('keydown',function(e){
+        if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight') return;
+        var r=root.getBoundingClientRect(); if(r.top>innerHeight*0.5||r.bottom<innerHeight*0.5) return;
+        go(e.key==='ArrowRight'?1:-1);
+      });
+      var px=null,py=null;
+      stage.addEventListener('pointerdown',function(e){px=e.clientX;py=e.clientY;});
+      stage.addEventListener('pointerup',function(e){
+        if(px===null) return; var dx=e.clientX-px, dy=e.clientY-py; px=py=null;
+        if(Math.abs(dx)>48&&Math.abs(dx)>Math.abs(dy)*1.2) go(dx<0?1:-1);
+      });
+
+      /* ---- scroll-driven hero → carousel ---- */
+      if(reduce){
+        gsap.set(root,{'--t-shape':1,'--t-content':1,'--t-sides':1,'--t-ui':1});
+        gsap.set(heroCopy,{autoAlpha:0});
+        root.classList.add('is-ready');
+      }else{
+        var tl=buildTimeline();
+        if(debugP!==null){
+          var st=tl.scrollTrigger;
+          var apply=function(){ScrollTrigger.refresh(); window.scrollTo(0,st.start+debugP*(st.end-st.start)); ScrollTrigger.update();};
+          window.addEventListener('load',function(){apply(); setTimeout(apply,50);});
+        }
+      }
+
+      function buildTimeline(){
+        gsap.set(heroCopy,{opacity:1,y:0,filter:'blur(0px)'});
+        var tl=gsap.timeline({
+          scrollTrigger:{
+            trigger:root,start:'top top',end:PIN_DISTANCE,pin:true,anticipatePin:1,
+            scrub:debugP!==null?true:SCRUB,
+            onUpdate:function(self){
+              root.classList.toggle('is-ready',self.progress>0.88);
+              if(debugEl&&!debugEl.hidden) debugEl.textContent='transition '+(self.progress*100).toFixed(1)+'%  ·  '+innerWidth+'×'+innerHeight;
+            }
+          }
+        });
+        /* positions are fractions of the pinned scroll distance */
+        tl.to(heroCopy,{opacity:0,y:-56,filter:'blur(10px)',duration:.28,ease:'power1.in'},0)   // copy fades up + blurs
+          .to(root,{'--t-shape':1,duration:.62,ease:'power2.inOut'},.04)                        // full-bleed → card (scale + radius + hairline)
+          .to(root,{'--t-content':1,duration:.20,ease:'power1.out'},.52)                        // card content fades in together
+          .to(root,{'--t-sides':1,duration:.26,ease:'power2.out'},.66)                          // side cards fade in from left / right
+          .to(root,{'--t-ui':1,duration:.14,ease:'power1.out'},.78)                             // paddles appear
+          .to({},{duration:.06});                                                               // settle before the pin releases
+        return tl;
+      }
+
+      /* ---- resize: rebuild only on a real width change (mobile URL bar fires height-only resizes) ---- */
+      var lastW=innerWidth,rt;
+      window.addEventListener('resize',function(){
+        clearTimeout(rt);
+        rt=setTimeout(function(){ if(Math.abs(innerWidth-lastW)<2) return; lastW=innerWidth; layout(); },150);
+      });
+    }
+  })();
+  </script>
+  <!-- SSC:END -->
+
+  <div class="harness-spacer">↓ next page section (harness)</div>
+  <div class="harness-debug" id="ssc-debug" hidden></div>
+</body>
+</html>
