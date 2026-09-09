@@ -8,3 +8,5 @@ Scroll-driven prototype for the "12 Months. 4 Seasons." section: the full-bleed 
 Tunables live at the top of the `.ssc` CSS (`--ssc-card-pct`, `--ssc-gap`, `--ssc-radius`, `--ssc-peek-dim`, …) and at the top of the script (`PIN_DISTANCE`, `SCRUB`, `SLIDE_DUR`, timeline positions in `buildTimeline()`). Append `?p=0.5&debug` to the URL to freeze the transition at 50%.
 
 Requires GSAP 3 + ScrollTrigger (loaded from cdnjs by the block itself; shares one copy with the Ways To Play blocks).
+
+**Live prototype:** https://brl-adambrace.github.io/brodie-seasons-scroll/
