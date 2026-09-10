@@ -48,7 +48,7 @@
       --ssc-arrow:56px;
       --ssc-side-shift:72px;        /* distance the side cards travel while fading in */
       --ssc-peek-dim:.22;           /* darkening on the non-active cards (0 = off) */
-      --ssc-shade:.62;              /* darkness of the bottom gradient (0 → 1) */
+      --ssc-shade:.84;              /* darkness of the bottom gradient (0 → 1) */
       --ssc-text-secondary:#6b6765;
       --ssc-vh:1vh;
       --ssc-hero-scale:calc(100 / var(--ssc-card-pct));
@@ -100,7 +100,7 @@
     .ssc-card__img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
     /* legibility: soft darkening gradient behind the card text */
     .ssc-card__shade{position:absolute;inset:0;pointer-events:none;
-      background:linear-gradient(to bottom,rgba(0,0,0,0) 36%,rgba(0,0,0,calc(var(--ssc-shade) * .25)) 54%,rgba(0,0,0,calc(var(--ssc-shade) * .62)) 74%,rgba(0,0,0,var(--ssc-shade)) 100%);
+      background:linear-gradient(to bottom,rgba(0,0,0,0) 32%,rgba(0,0,0,calc(var(--ssc-shade) * .3)) 50%,rgba(0,0,0,calc(var(--ssc-shade) * .74)) 68%,rgba(0,0,0,var(--ssc-shade)) 90%,rgba(0,0,0,var(--ssc-shade)) 100%);
     }
     .ssc-slot.is-active .ssc-card__shade{opacity:var(--t-shade)} /* hero stays clean; the gradient eases in on its own slower curve */
     .ssc-card__dim{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .9s cubic-bezier(.32,.72,0,1)}
