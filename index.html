@@ -32,7 +32,7 @@
 
        Knobs (CSS vars on .ssc)   --ssc-card-pct (card size as % of viewport → hero scale
          is derived from it), --ssc-gap, --ssc-radius, --ssc-pad, --ssc-side-shift,
-         --ssc-peek-dim (0 = no darkening on side cards), --ssc-blur / --ssc-shade (legibility layer), --ssc-arrow.
+         --ssc-peek-dim (0 = no darkening on side cards), --ssc-shade (bottom gradient), --ssc-arrow.
        Knobs (JS consts)          PIN_DISTANCE, SCRUB, SLIDE_DUR, SLIDE_EASE + the
          timeline positions in buildTimeline().
        To edit copy: change the text inside the cards.   To swap an image: replace src.
@@ -48,9 +48,7 @@
       --ssc-arrow:56px;
       --ssc-side-shift:72px;        /* distance the side cards travel while fading in */
       --ssc-peek-dim:.22;           /* darkening on the non-active cards (0 = off) */
-      --ssc-blur:28px;              /* max blur of the progressive blur behind the card text */
       --ssc-shade:.62;              /* darkness of the bottom gradient (0 → 1) */
-      --ssc-blur-h:240px;           /* height of the blur band from the card bottom (taper ends just above the subheadline) */
       --ssc-text-secondary:#6b6765;
       --ssc-vh:1vh;
       --ssc-hero-scale:calc(100 / var(--ssc-card-pct));
@@ -100,17 +98,11 @@
     }
     .ssc-slot:not(.is-active) .ssc-card{opacity:var(--t-sides)}
     .ssc-card__img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
-    /* legibility: progressive blur (4 masked backdrop bands, stronger toward the bottom) under a soft darkening gradient */
-    .ssc-card__blur{position:absolute;left:0;right:0;bottom:0;height:var(--ssc-blur-h);pointer-events:none}
-    .ssc-card__blur i{position:absolute;inset:0;display:block}
-    .ssc-card__blur i:nth-child(1){-webkit-backdrop-filter:blur(calc(var(--ssc-blur) * .1));backdrop-filter:blur(calc(var(--ssc-blur) * .1));-webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 45%);mask-image:linear-gradient(to bottom,transparent 0%,#000 45%)}
-    .ssc-card__blur i:nth-child(2){-webkit-backdrop-filter:blur(calc(var(--ssc-blur) * .28));backdrop-filter:blur(calc(var(--ssc-blur) * .28));-webkit-mask-image:linear-gradient(to bottom,transparent 25%,#000 60%);mask-image:linear-gradient(to bottom,transparent 25%,#000 60%)}
-    .ssc-card__blur i:nth-child(3){-webkit-backdrop-filter:blur(calc(var(--ssc-blur) * .57));backdrop-filter:blur(calc(var(--ssc-blur) * .57));-webkit-mask-image:linear-gradient(to bottom,transparent 45%,#000 80%);mask-image:linear-gradient(to bottom,transparent 45%,#000 80%)}
-    .ssc-card__blur i:nth-child(4){-webkit-backdrop-filter:blur(var(--ssc-blur));backdrop-filter:blur(var(--ssc-blur));-webkit-mask-image:linear-gradient(to bottom,transparent 65%,#000 96%);mask-image:linear-gradient(to bottom,transparent 65%,#000 96%)}
+    /* legibility: soft darkening gradient behind the card text */
     .ssc-card__shade{position:absolute;inset:0;pointer-events:none;
       background:linear-gradient(to bottom,rgba(0,0,0,0) 36%,rgba(0,0,0,calc(var(--ssc-shade) * .25)) 54%,rgba(0,0,0,calc(var(--ssc-shade) * .62)) 74%,rgba(0,0,0,var(--ssc-shade)) 100%);
     }
-    .ssc-slot.is-active .ssc-card__blur,.ssc-slot.is-active .ssc-card__shade{opacity:var(--t-shade)} /* hero stays clean; legibility layer eases in on its own slower curve */
+    .ssc-slot.is-active .ssc-card__shade{opacity:var(--t-shade)} /* hero stays clean; the gradient eases in on its own slower curve */
     .ssc-card__dim{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .9s cubic-bezier(.32,.72,0,1)}
     .ssc-slot:not(.is-active) .ssc-card__dim{opacity:var(--ssc-peek-dim)}
     .ssc-card::after{ /* hairline */
@@ -173,7 +165,7 @@
 
     /* ---------- Responsive ---------- */
     @media screen and (max-width:991px){
-      .ssc{--ssc-pad:32px;--ssc-arrow:48px;--ssc-side-shift:56px;--ssc-blur-h:225px}
+      .ssc{--ssc-pad:32px;--ssc-arrow:48px;--ssc-side-shift:56px}
       .ssc-hero-copy{padding:clamp(80px,14vh,120px) 48px 0}
       .ssc-hero-copy__title,.ssc-card__title{font-size:44px;letter-spacing:-1.5px}
       .ssc-card__sub{font-size:24px}
@@ -181,7 +173,7 @@
       .ssc-cta{min-width:200px}
     }
     @media screen and (max-width:767px){
-      .ssc{--ssc-card-pct:88;--ssc-gap:12px;--ssc-radius:24px;--ssc-pad:22px;--ssc-side-shift:40px;--ssc-blur-h:230px}
+      .ssc{--ssc-card-pct:88;--ssc-gap:12px;--ssc-radius:24px;--ssc-pad:22px;--ssc-side-shift:40px}
       .ssc-hero-copy{padding:88px 24px 0;gap:10px}
       .ssc-hero-copy__eyebrow{font-size:15px}
       .ssc-hero-copy__title,.ssc-card__title{font-size:36px;letter-spacing:-1px}
@@ -199,7 +191,6 @@
     }
     @media screen and (max-height:640px){
       .ssc-hero-copy{padding-top:72px}
-      .ssc{--ssc-blur-h:215px}
       .ssc-hero-copy__title,.ssc-card__title{font-size:40px;letter-spacing:-1.2px}
       .ssc-card__sub{font-size:22px}
       .ssc-card__badge{width:64px;height:64px}
@@ -225,7 +216,6 @@
         <div class="ssc-slot is-left">
           <article class="ssc-card" style="--accent:#f6a800;--cta-text:#1f1600">
             <img class="ssc-card__img" src="assets/slide-summer.jpg" alt="Brodie Summer — athletes gathered around the table">
-            <div class="ssc-card__blur" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
             <div class="ssc-card__shade"></div>
             <div class="ssc-card__dim"></div>
             <div class="ssc-card__content">
@@ -248,7 +238,6 @@
         <div class="ssc-slot is-active">
           <article class="ssc-card" style="--accent:#ce102c;--cta-text:#280809">
             <img class="ssc-card__img" src="assets/slide-slasher.jpg" alt="Slasher Season — Brodie athletes in a cinema" fetchpriority="high">
-            <div class="ssc-card__blur" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
             <div class="ssc-card__shade"></div>
             <div class="ssc-card__dim"></div>
             <div class="ssc-card__content">
@@ -272,7 +261,6 @@
         <div class="ssc-slot is-right">
           <article class="ssc-card" style="--accent:#0050b5;--cta-text:#ffffff">
             <img class="ssc-card__img" src="assets/slide-coldest.jpg" alt="Coldest Winter — athletes on the ice in hockey jerseys">
-            <div class="ssc-card__blur" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
             <div class="ssc-card__shade"></div>
             <div class="ssc-card__dim"></div>
             <div class="ssc-card__content">
@@ -295,7 +283,6 @@
         <div class="ssc-slot is-hidden" aria-hidden="true">
           <article class="ssc-card" style="--accent:#369040;--cta-text:#ffffff">
             <img class="ssc-card__img" src="assets/slide-bracket.jpg" alt="Bracket Season — athlete looking up through the net">
-            <div class="ssc-card__blur" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
             <div class="ssc-card__shade"></div>
             <div class="ssc-card__dim"></div>
             <div class="ssc-card__content">
@@ -447,7 +434,7 @@
         /* positions are fractions of the pinned scroll distance */
         tl.to(heroCopy,{opacity:0,y:-56,filter:'blur(10px)',duration:.28,ease:'power1.in'},0)   // copy fades up + blurs
           .to(root,{'--t-shape':1,duration:.62,ease:'power2.inOut'},.04)                        // full-bleed → card (scale + radius + hairline)
-          .to(root,{'--t-shade':1,duration:.36,ease:'sine.inOut'},.42)                        // blur + gradient ease in slowly beneath the content
+          .to(root,{'--t-shade':1,duration:.36,ease:'sine.inOut'},.42)                        // bottom gradient eases in slowly beneath the content
           .to(root,{'--t-content':1,duration:.20,ease:'power1.out'},.52)                        // card content fades in together
           .to(root,{'--t-sides':1,duration:.26,ease:'power2.out'},.66)                          // side cards fade in from left / right
           .to(root,{'--t-ui':1,duration:.14,ease:'power1.out'},.78)                             // paddles appear
