@@ -132,7 +132,10 @@
       background:rgba(255,255,255,.5);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
       font-size:13px;font-weight:600;line-height:1.5;letter-spacing:-.4px;color:#f8f8f8;white-space:nowrap;
     }
-    .ssc-pill::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent)}
+    .ssc-pill__dot{position:relative;width:8px;height:8px;border-radius:50%;background:var(--accent);flex:0 0 auto;animation:ssc-dot-beat 2.4s cubic-bezier(.3,0,.2,1) infinite}
+    .ssc-pill__dot::after{content:'';position:absolute;inset:0;border-radius:50%;background:var(--accent);opacity:0;animation:ssc-dot-ring 2.4s cubic-bezier(.16,.6,.3,1) infinite}
+    @keyframes ssc-dot-beat{0%{transform:scale(1)}12%{transform:scale(1.22)}32%{transform:scale(1)}100%{transform:scale(1)}}
+    @keyframes ssc-dot-ring{0%{transform:scale(1);opacity:.55}62%{transform:scale(3);opacity:0}100%{transform:scale(3);opacity:0}}
     .ssc-cta{
       display:inline-flex;align-items:center;justify-content:center;min-width:232px;height:48px;padding:0 24px;
       border-radius:48px;background:var(--accent);color:var(--cta-text);
@@ -199,6 +202,7 @@
       .ssc{--t-shape:1;--t-content:1;--t-shade:1;--t-sides:1;--t-ui:1}
       .ssc-hero-copy{display:none}
       .ssc-card__dim,.ssc-arrow,.ssc-cta{transition:none}
+      .ssc-pill__dot,.ssc-pill__dot::after{animation:none}
     }
   </style>
 
@@ -246,7 +250,7 @@
                 <span class="ssc-card__label">Fall &rsquo;26</span>
               </header>
               <div class="ssc-card__bottom">
-                <span class="ssc-pill">Now Playing</span>
+                <span class="ssc-pill"><i class="ssc-pill__dot" aria-hidden="true"></i>Now Playing</span>
                 <div class="ssc-card__text">
                   <h3 class="ssc-card__title">Slasher Season</h3>
                   <p class="ssc-card__sub">When The Court Gets Darker, The Competition Gets Deadlier.</p>
