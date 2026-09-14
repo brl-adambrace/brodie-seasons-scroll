@@ -184,7 +184,9 @@
       .ssc-card__bottom{gap:14px}
       .ssc-cta{min-width:0;height:44px;padding:0 22px;font-size:15px}
       .ssc-pill{font-size:12px;padding:3px 11px}
-      .ssc-arrow{display:none} /* swipe / tap a side card to cycle on touch */
+      .ssc{--ssc-arrow:44px} /* phones: gaps are too narrow, so the paddles sit just inside the centre card’s edges */
+      .ssc-arrow--prev{left:calc(50% - var(--ssc-card-w) / 2 + 8px)}
+      .ssc-arrow--next{left:calc(50% + var(--ssc-card-w) / 2 - var(--ssc-arrow) - 8px)}
     }
     @media screen and (max-width:479px){
       .ssc-hero-copy__title,.ssc-card__title{font-size:32px}

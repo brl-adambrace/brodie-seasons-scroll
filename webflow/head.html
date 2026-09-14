@@ -27,10 +27,12 @@
 .ssc-slot:not(.ssc-active) .ssc-cta{pointer-events:none}
 .ssc-arrow{opacity:var(--t-ui);pointer-events:none}
 .ssc.ssc-ready .ssc-arrow{pointer-events:auto}
-.ssc-arrow--prev{left:calc(50% - var(--ssc-card-w) / 2 - var(--ssc-gap) / 2 - 28px)}
-.ssc-arrow--next{left:calc(50% + var(--ssc-card-w) / 2 + var(--ssc-gap) / 2 - 28px)}
-@media screen and (max-width:991px){.ssc{--ssc-side-shift:56px}.ssc-arrow--prev{left:calc(50% - var(--ssc-card-w) / 2 - var(--ssc-gap) / 2 - 24px)}.ssc-arrow--next{left:calc(50% + var(--ssc-card-w) / 2 + var(--ssc-gap) / 2 - 24px)}}
-@media screen and (max-width:767px){.ssc{--ssc-card-pct:88;--ssc-gap:12px;--ssc-radius:24px;--ssc-side-shift:40px}}
+.ssc-arrow.ssc-arrow--prev{left:calc(50% - var(--ssc-card-w) / 2 - var(--ssc-gap) / 2 - 28px)}
+.ssc-arrow.ssc-arrow--next{left:calc(50% + var(--ssc-card-w) / 2 + var(--ssc-gap) / 2 - 28px)}
+@media screen and (max-width:991px){.ssc{--ssc-side-shift:56px}.ssc-arrow.ssc-arrow--prev{left:calc(50% - var(--ssc-card-w) / 2 - var(--ssc-gap) / 2 - 24px)}.ssc-arrow.ssc-arrow--next{left:calc(50% + var(--ssc-card-w) / 2 + var(--ssc-gap) / 2 - 24px)}}
+@media screen and (max-width:767px){.ssc{--ssc-card-pct:88;--ssc-gap:12px;--ssc-radius:24px;--ssc-side-shift:40px}
+  /* phones: the gaps are too narrow, so the paddles sit just inside the centre card’s edges */
+  .ssc-arrow{display:flex;width:44px;height:44px;margin-top:-22px}.ssc-arrow.ssc-arrow--prev{left:calc(50% - var(--ssc-card-w) / 2 + 8px)}.ssc-arrow.ssc-arrow--next{left:calc(50% + var(--ssc-card-w) / 2 - 52px)}}
 @media screen and (max-height:640px){.ssc-hero-copy{padding-top:52px}.ssc-hero-copy__title,.ssc-hero-copy__title2,.ssc-card__title{font-size:40px;letter-spacing:-1.2px}.ssc-card__sub{font-size:22px}.ssc-card__badge{width:64px;height:64px}}
 @media (prefers-reduced-motion:reduce){.ssc{--t-shape:1;--t-content:1;--t-shade:1;--t-sides:1;--t-ui:1}.ssc-hero-copy{display:none}.ssc-card__dim,.ssc-arrow,.ssc-cta{transition:none}.ssc-pill__dot{animation:none}}
 </style>
