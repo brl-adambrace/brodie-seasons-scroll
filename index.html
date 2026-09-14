@@ -316,143 +316,111 @@
   </section>
 
   <script>
-  (function(){
-    var root=document.querySelector('.ssc'); if(!root) return;
+(function(){
+  var root=document.querySelector('.ssc'); if(!root) return;
+  var PIN_DISTANCE='+=135%', SCRUB=0.5, SLIDE_DUR=0.9, SLIDE_EASE='power3.out', GO_THROTTLE=220;
+  var BASE='https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/';
+  function load(src){return new Promise(function(res,rej){var s=document.createElement('script');s.src=src;s.async=false;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
+  (window.gsap?Promise.resolve():load(BASE+'gsap.min.js'))
+    .then(function(){return window.ScrollTrigger?null:load(BASE+'ScrollTrigger.min.js');})
+    .then(init).catch(function(e){console.warn('[ssc] GSAP failed to load',e);root.classList.add('is-ready');});
 
-    /* ---- tunables ---- */
-    var PIN_DISTANCE='+=135%';   // how much scroll the transition consumes (of viewport height)
-    var SCRUB=0.5;               // seconds of catch-up smoothing on the scroll scrub (true = none)
-    var SLIDE_DUR=0.9, SLIDE_EASE='power3.out';   // paddle transition
+  function init(){
+    gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.config({ignoreMobileResize:true});
+    var stage=root.querySelector('.ssc-stage');
+    var slots=Array.prototype.slice.call(root.querySelectorAll('.ssc-slot'));
+    var heroCopy=root.querySelector('.ssc-hero-copy');
+    var prevBtn=root.querySelector('.ssc-arrow--prev'), nextBtn=root.querySelector('.ssc-arrow--next');
+    var N=slots.length; if(!N) return;
+    var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var params=new URLSearchParams(location.search);
+    var debugP=params.has('p')?parseFloat(params.get('p')):null;            // ?p=0.5 → freeze the transition at 50% (testing)
+    var debugEl=document.getElementById('ssc-debug'); if(debugEl&&(params.has('debug')||debugP!==null)) debugEl.hidden=false;
 
-    /* ---- GSAP loader (dedupes with other blocks on the page) ---- */
-    var BASE='https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/';
-    function load(src){return new Promise(function(res,rej){var s=document.createElement('script');s.src=src;s.async=false;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
-    (window.gsap?Promise.resolve():load(BASE+'gsap.min.js'))
-      .then(function(){return window.ScrollTrigger?null:load(BASE+'ScrollTrigger.min.js');})
-      .then(init)
-      .catch(function(e){console.warn('[ssc] GSAP failed to load',e);root.classList.add('is-ready');});
+    /* Per-card colours come from hidden CMS-bound text (.ssc-card__meta-*) or data-attributes.
+       The current season is the card whose "Now Playing" pill is visible (CMS switch). */
+    var COLOR=/^(#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})|rgba?\([^)]*\))$/i;
+    function readColor(card,sel,attr){var el=card.querySelector(sel);var v=(card.getAttribute(attr)||(el?el.textContent:'')||'').trim();return COLOR.test(v)?v:null;}
+    var active=-1;
+    slots.forEach(function(slot,i){
+      var card=slot.querySelector('.ssc-card')||slot;
+      var a=readColor(card,'.ssc-card__meta-accent','data-accent'), t=readColor(card,'.ssc-card__meta-cta','data-cta-text');
+      if(a) card.style.setProperty('--accent',a);
+      if(t) card.style.setProperty('--cta-text',t);
+      var c=card.getAttribute('data-current'), pill=card.querySelector('.ssc-pill');
+      var isCurrent=(c&&/^(true|1|on|yes)$/i.test(c.trim()))||(pill&&!pill.classList.contains('w-condition-invisible')&&getComputedStyle(pill).display!=='none');
+      if(isCurrent&&active<0) active=i;
+    });
+    if(active<0){active=parseInt(root.getAttribute('data-start'),10); if(isNaN(active)||active>=N) active=Math.min(1,N-1);}
 
-    function init(){
-      gsap.registerPlugin(ScrollTrigger);
-      ScrollTrigger.config({ignoreMobileResize:true});
-
-      var stage=root.querySelector('.ssc-stage');
-      var slots=Array.prototype.slice.call(root.querySelectorAll('.ssc-slot'));
-      var heroCopy=root.querySelector('.ssc-hero-copy');
-      var prevBtn=root.querySelector('.ssc-arrow--prev'), nextBtn=root.querySelector('.ssc-arrow--next');
-      var N=slots.length;
-      var active=parseInt(root.getAttribute('data-start'),10); if(isNaN(active)) active=Math.min(1,N-1);
-      var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var params=new URLSearchParams(location.search);
-      var debugP=params.has('p')?parseFloat(params.get('p')):null;      // ?p=0.5 → jump to 50% of the transition (testing)
-      var debugEl=document.getElementById('ssc-debug'); if(debugEl&&(params.has('debug')||debugP!==null)) debugEl.hidden=false;
-
-      /* ---- carousel geometry: every card sits at offset × (card width + gap) from centre ---- */
-      function gapPx(){return parseFloat(getComputedStyle(root).getPropertyValue('--ssc-gap'))||16;}
-      function step(){return slots[0].offsetWidth+gapPx();}
-      function offsetOf(i){var d=((i-active)%N+N)%N; if(d===0)return 0; if(d===1)return 1; if(d===N-1)return -1; return null;} // null = off-stage
-      function setRole(slot,o){
-        slot.classList.toggle('is-active',o===0);
-        slot.classList.toggle('is-left',o===-1);
-        slot.classList.toggle('is-right',o===1);
-        slot.classList.toggle('is-hidden',o===null);
-        if(o===null) slot.setAttribute('aria-hidden','true'); else slot.removeAttribute('aria-hidden');
-      }
-      var busy=false;
-      function layout(){
-        var S=step();
-        slots.forEach(function(slot,i){var o=offsetOf(i); gsap.killTweensOf(slot); gsap.set(slot,{x:(o===null?2:o)*S}); setRole(slot,o);});
-        busy=false;
-      }
-      function go(dir){
-        if(busy||!root.classList.contains('is-ready')) return;
-        busy=true;
-        var before=slots.map(function(_,i){return offsetOf(i);});
-        active=(active+dir+N)%N;
-        var S=step(), dur=reduce?0:SLIDE_DUR;
-        slots.forEach(function(slot,i){
-          var o0=before[i], o1=offsetOf(i);
-          setRole(slot,o1);
-          if(o1===null){        // leaving: keep travelling in the direction of motion, off stage
-            gsap.to(slot,{x:(o0-dir)*S,duration:dur,ease:SLIDE_EASE,overwrite:true});
-          }else if(o0===null){  // arriving: start just off stage on the incoming side
-            gsap.fromTo(slot,{x:(o1+dir)*S},{x:o1*S,duration:dur,ease:SLIDE_EASE,overwrite:true});
-          }else{
-            gsap.to(slot,{x:o1*S,duration:dur,ease:SLIDE_EASE,overwrite:true});
-          }
-        });
-        gsap.delayedCall(dur*0.5,function(){busy=false;});
-      }
-      layout();
-      if(params.has('debug')) window.__ssc={go:go,layout:layout,slots:slots,state:function(){return {active:active,busy:busy};}};
-
-      /* ---- controls ---- */
-      prevBtn.addEventListener('click',function(){go(-1);});
-      nextBtn.addEventListener('click',function(){go(1);});
-      slots.forEach(function(slot){
-        slot.addEventListener('click',function(e){
-          if(slot.classList.contains('is-left')){e.preventDefault();go(-1);}
-          else if(slot.classList.contains('is-right')){e.preventDefault();go(1);}
-        });
-      });
-      window.addEventListener('keydown',function(e){
-        if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight') return;
-        var r=root.getBoundingClientRect(); if(r.top>innerHeight*0.5||r.bottom<innerHeight*0.5) return;
-        go(e.key==='ArrowRight'?1:-1);
-      });
-      var px=null,py=null;
-      stage.addEventListener('pointerdown',function(e){px=e.clientX;py=e.clientY;});
-      stage.addEventListener('pointerup',function(e){
-        if(px===null) return; var dx=e.clientX-px, dy=e.clientY-py; px=py=null;
-        if(Math.abs(dx)>48&&Math.abs(dx)>Math.abs(dy)*1.2) go(dx<0?1:-1);
-      });
-
-      /* ---- scroll-driven hero → carousel ---- */
-      if(reduce){
-        gsap.set(root,{'--t-shape':1,'--t-content':1,'--t-shade':1,'--t-sides':1,'--t-ui':1});
-        gsap.set(heroCopy,{autoAlpha:0});
-        root.classList.add('is-ready');
-      }else{
-        var tl=buildTimeline();
-        if(debugP!==null){
-          var st=tl.scrollTrigger;
-          var apply=function(){ScrollTrigger.refresh(); window.scrollTo(0,st.start+debugP*(st.end-st.start)); ScrollTrigger.update();};
-          window.addEventListener('load',function(){apply(); setTimeout(apply,50);});
-        }
-      }
-
-      function buildTimeline(){
-        gsap.set(heroCopy,{opacity:1,y:0,filter:'blur(0px)'});
-        var tl=gsap.timeline({
-          scrollTrigger:{
-            trigger:root,start:'top top',end:PIN_DISTANCE,pin:true,anticipatePin:1,
-            scrub:debugP!==null?true:SCRUB,
-            onUpdate:function(self){
-              root.classList.toggle('is-ready',self.progress>0.88);
-              if(debugEl&&!debugEl.hidden) debugEl.textContent='transition '+(self.progress*100).toFixed(1)+'%  ·  '+innerWidth+'×'+innerHeight;
-            }
-          }
-        });
-        /* positions are fractions of the pinned scroll distance */
-        tl.to(heroCopy,{opacity:0,y:-56,filter:'blur(10px)',duration:.28,ease:'power1.in'},0)   // copy fades up + blurs
-          .to(root,{'--t-shape':1,duration:.62,ease:'power2.inOut'},.04)                        // full-bleed → card (scale + radius + hairline)
-          .to(root,{'--t-shade':1,duration:.36,ease:'sine.inOut'},.42)                        // bottom gradient eases in slowly beneath the content
-          .to(root,{'--t-content':1,duration:.20,ease:'power1.out'},.52)                        // card content fades in together
-          .to(root,{'--t-sides':1,duration:.26,ease:'power2.out'},.66)                          // side cards fade in from left / right
-          .to(root,{'--t-ui':1,duration:.14,ease:'power1.out'},.78)                             // paddles appear
-          .to({},{duration:.06});                                                               // settle before the pin releases
-        return tl;
-      }
-
-      /* ---- resize: rebuild only on a real width change (mobile URL bar fires height-only resizes) ---- */
-      var lastW=innerWidth,rt;
-      window.addEventListener('resize',function(){
-        clearTimeout(rt);
-        rt=setTimeout(function(){ if(Math.abs(innerWidth-lastW)<2) return; lastW=innerWidth; layout(); },150);
-      });
+    /* ---- carousel engine: ONE continuous position drives every card, so the cards are always exactly
+       one step apart no matter how often a slide is interrupted or reversed. pos.v is fractional while
+       sliding; target is the integer index we're heading to; roles come from the target. ---- */
+    var pos={v:active}, target=active;
+    function gapPx(){return parseFloat(getComputedStyle(root).getPropertyValue('--ssc-gap'))||16;}
+    function step(){return slots[0].offsetWidth+gapPx();}
+    function wrap(d){d=((d%N)+N)%N; if(d>N/2) d-=N; return d;}                 // → (-N/2, N/2]; the wrap happens off stage
+    function offsetOf(i){var d=wrap(i-active); return d===0?0:(d===1?1:(d===-1?-1:null));}   // null = off stage
+    function setRole(slot,o){
+      slot.classList.toggle('is-active',o===0); slot.classList.toggle('is-left',o===-1);
+      slot.classList.toggle('is-right',o===1); slot.classList.toggle('is-hidden',o===null);
+      if(o===null) slot.setAttribute('aria-hidden','true'); else slot.removeAttribute('aria-hidden');
     }
-  })();
-  </script>
+    function render(){var S=step(); slots.forEach(function(slot,i){gsap.set(slot,{x:wrap(i-pos.v)*S});});}
+    function applyRoles(){slots.forEach(function(slot,i){setRole(slot,offsetOf(i));});}
+    function layout(){gsap.killTweensOf(pos); pos.v=target; render(); applyRoles();}
+    var lastGo=-1e9;
+    function go(dir){
+      if(!root.classList.contains('is-ready')) return;
+      var now=performance.now(); if(now-lastGo<GO_THROTTLE) return; lastGo=now;
+      target+=dir; active=((target%N)+N)%N; applyRoles();
+      gsap.to(pos,{v:target,duration:reduce?0:SLIDE_DUR,ease:SLIDE_EASE,overwrite:true,onUpdate:render});
+    }
+    layout();
+    if(params.has('debug')) window.__ssc={go:go,layout:layout,slots:slots,state:function(){return {active:active,target:target,pos:pos.v};}};
+
+    /* ---- controls: paddles, side-card tap, arrow keys, swipe ---- */
+    var suppressClickUntil=0;
+    if(prevBtn) prevBtn.addEventListener('click',function(e){e.preventDefault();go(-1);});
+    if(nextBtn) nextBtn.addEventListener('click',function(e){e.preventDefault();go(1);});
+    slots.forEach(function(slot){ slot.addEventListener('click',function(e){
+      if(performance.now()<suppressClickUntil) return;
+      if(slot.classList.contains('is-left')){e.preventDefault();go(-1);} else if(slot.classList.contains('is-right')){e.preventDefault();go(1);} }); });
+    window.addEventListener('keydown',function(e){
+      if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight') return;
+      var r=root.getBoundingClientRect(); if(r.top>innerHeight*0.5||r.bottom<innerHeight*0.5) return;
+      go(e.key==='ArrowRight'?1:-1);
+    });
+    var px=null,py=null;
+    stage.addEventListener('pointerdown',function(e){px=e.clientX;py=e.clientY;});
+    stage.addEventListener('pointerup',function(e){ if(px===null) return; var dx=e.clientX-px, dy=e.clientY-py; px=py=null;
+      if(Math.abs(dx)>48&&Math.abs(dx)>Math.abs(dy)*1.2){ suppressClickUntil=performance.now()+400; go(dx<0?1:-1); } });
+
+    /* ---- scroll-driven hero → carousel ---- */
+    if(reduce){
+      gsap.set(root,{'--t-shape':1,'--t-content':1,'--t-shade':1,'--t-sides':1,'--t-ui':1});
+      if(heroCopy) gsap.set(heroCopy,{autoAlpha:0});
+      root.classList.add('is-ready');
+    }else{
+      if(heroCopy) gsap.set(heroCopy,{opacity:1,y:0,filter:'blur(0px)'});
+      var tl=gsap.timeline({scrollTrigger:{trigger:root,start:'top top',end:PIN_DISTANCE,pin:true,anticipatePin:1,scrub:debugP!==null?true:SCRUB,
+        onUpdate:function(self){root.classList.toggle('is-ready',self.progress>0.88);
+          if(debugEl&&!debugEl.hidden) debugEl.textContent='transition '+(self.progress*100).toFixed(1)+'%  ·  '+innerWidth+'×'+innerHeight;}}});
+      if(heroCopy) tl.to(heroCopy,{opacity:0,y:-56,filter:'blur(10px)',duration:.28,ease:'power1.in'},0);     // copy fades up + blurs
+      tl.to(root,{'--t-shape':1,duration:.62,ease:'power2.inOut'},.04)                                       // full-bleed → card
+        .to(root,{'--t-content':1,duration:.20,ease:'power1.out'},.52)                                       // card content fades in together
+        .to(root,{'--t-shade':1,duration:.36,ease:'sine.inOut'},.42)                                         // bottom gradient eases in
+        .to(root,{'--t-sides':1,duration:.26,ease:'power2.out'},.66)                                         // side cards fade in from left / right
+        .to(root,{'--t-ui':1,duration:.14,ease:'power1.out'},.78)                                            // paddles appear
+        .to({},{duration:.06});                                                                              // settle before the pin releases
+      if(debugP!==null){ var st=tl.scrollTrigger; var apply=function(){ScrollTrigger.refresh(); window.scrollTo(0,st.start+debugP*(st.end-st.start)); ScrollTrigger.update();}; window.addEventListener('load',function(){apply(); setTimeout(apply,50);}); }
+    }
+    var lastW=innerWidth,rt;
+    window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){if(Math.abs(innerWidth-lastW)<2)return;lastW=innerWidth;layout();},150);});
+  }
+})();
+</script>
   <!-- SSC:END -->
 
   <div class="harness-spacer">↓ next page section (harness)</div>
