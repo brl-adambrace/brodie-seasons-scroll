@@ -427,6 +427,193 @@
 </script>
   <!-- SSC:END -->
 
+  <!-- DV:START -->
+  <style>
+.dv{background-color:#000;color:#fff;padding:96px 0 80px 0}
+.dv-inner{display:flex;flex-direction:column;align-items:flex-start;gap:44px;width:100%}
+.dv-heading{display:flex;flex-direction:column;gap:24px;padding:0 80px 0 80px;max-width:900px}
+.dv-eyebrow{margin:0;font-weight:500;font-size:18px;line-height:1.4;color:#6b6765}
+.dv-title{margin:0;font-weight:600;font-size:56px;line-height:1.1;letter-spacing:-2px;color:#fff}
+.dv-title2{margin:0;font-weight:600;font-size:56px;line-height:1.1;letter-spacing:-2px;color:#6c6564}
+.dv-controls{display:flex;gap:16px;justify-content:flex-end;width:100%;padding:0 80px 0 80px}
+.dv-arrow{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background-color:rgba(255,255,255,0.5);color:#000;text-decoration:none;cursor:pointer;transition:background-color 0.25s ease-out,opacity 0.25s ease-out,transform 0.15s ease-out}
+.dv-arrow:hover{background-color:rgba(255,255,255,0.72)}
+.dv-arrow__chev{width:10px;height:10px;border-top:2px solid #000;border-right:2px solid #000;transform:rotate(45deg);margin-left:-3px}
+.dv-arrow__chev--prev{transform:rotate(-135deg);margin-left:3px}
+.dv-track{width:100%;overflow:auto}
+.dv-items{display:flex;gap:16px;padding:0 80px 0 80px;width:max-content}
+.dv-slot{flex:0 0 420px;width:420px}
+.dv-card{position:relative;width:100%;height:573px;border-radius:16px;overflow:hidden;background-color:#111}
+.dv-card__img{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:block}
+.dv-card__frost{position:absolute;top:0;right:0;bottom:0;left:0;background-color:rgba(0,0,0,0.2);backdrop-filter:blur(20px);opacity:0}
+.dv-card__content{position:absolute;top:0;right:0;bottom:0;left:0;padding:24px}
+.dv-card__title{margin:0;font-weight:600;font-size:40px;line-height:1.15;letter-spacing:-1px;color:#fff}
+.dv-card__sub{position:absolute;left:24px;right:24px;bottom:24px;margin:0;font-weight:600;font-size:20px;line-height:1.35;color:#fff}
+.dv-card__desc{position:absolute;left:24px;right:24px;bottom:24px;margin:0;font-weight:500;font-size:18px;line-height:1.4;color:#fff;opacity:0}
+.dv-card__info{position:absolute;top:20px;right:20px;width:36px;height:36px;border-radius:50%;background-color:rgba(255,255,255,0.5);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;text-decoration:none;cursor:pointer}
+.dv-card__info-icon{position:relative;width:14px;height:14px}
+.dv-cta{display:flex;align-items:center;justify-content:center;height:48px;padding:0 24px;border-radius:48px;background-color:#eae8e8;color:#000;font-weight:600;font-size:16px;line-height:1.5;text-decoration:none;margin-left:80px;transition:transform 0.15s ease-out,background-color 0.2s ease-out}
+.dv-cta:hover{background-color:#fff}
+@media screen and (max-width:991px){.dv-heading{padding:0 48px 0 48px}.dv-controls{padding:0 48px 0 48px}.dv-title{font-size:44px;letter-spacing:-1.5px}.dv-title2{font-size:44px;letter-spacing:-1.5px}.dv-items{padding:0 48px 0 48px}.dv-slot{flex-basis:360px;width:360px}.dv-card{height:491px}.dv-card__title{font-size:34px}.dv-cta{margin-left:48px}}
+@media screen and (max-width:767px){.dv{padding:64px 0 56px 0}.dv-inner{gap:28px}.dv-heading{padding:0 24px 0 24px}.dv-controls{padding:0 24px 0 24px}.dv-eyebrow{font-size:15px}.dv-title{font-size:36px;letter-spacing:-1px}.dv-title2{font-size:36px;letter-spacing:-1px}.dv-arrow{width:44px;height:44px}.dv-items{padding:0 24px 0 24px;gap:12px}.dv-slot{flex-basis:78vw;width:78vw}.dv-card{height:106vw}.dv-card__content{padding:20px}.dv-card__title{font-size:30px;letter-spacing:-0.6px}.dv-card__sub{left:20px;right:20px;bottom:20px;font-size:18px}.dv-card__desc{left:20px;right:20px;bottom:20px;font-size:16px}.dv-card__info{top:16px;right:16px}.dv-cta{margin-left:24px}}
+@media screen and (max-width:479px){.dv-title{font-size:32px}.dv-title2{font-size:32px}}
+  </style>
+  <style>
+.dv-track{overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-left:80px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.dv-track::-webkit-scrollbar{display:none}
+.dv-slot{scroll-snap-align:start}
+.dv-card__content{pointer-events:none}
+.dv-card__title{position:relative}
+.dv-card__frost,.dv-card__sub,.dv-card__desc{transition:opacity .55s cubic-bezier(.2,.6,.2,1),transform .55s cubic-bezier(.2,.6,.2,1)}
+.dv-card__desc{transform:translateY(10px)}
+.dv-card.dv-open .dv-card__frost{opacity:1}
+.dv-card.dv-open .dv-card__sub{opacity:0;transform:translateY(-6px)}
+.dv-card.dv-open .dv-card__desc{opacity:1;transform:none}
+@media (hover:hover){
+  .dv-card:hover .dv-card__frost{opacity:1}
+  .dv-card:hover .dv-card__sub{opacity:0;transform:translateY(-6px)}
+  .dv-card:hover .dv-card__desc{opacity:1;transform:none}
+}
+@media (hover:none){.dv-card__info{display:flex}}
+.dv-card:focus-within .dv-card__info{display:flex}
+.dv-card__info-icon::before,.dv-card__info-icon::after{content:'';position:absolute;left:50%;top:50%;width:14px;height:2px;margin:-1px 0 0 -7px;background:#000;border-radius:1px;transition:transform .45s cubic-bezier(.2,.6,.2,1)}
+.dv-card__info-icon::after{transform:rotate(90deg)}
+.dv-card.dv-open .dv-card__info-icon::before{transform:rotate(45deg)}
+.dv-card.dv-open .dv-card__info-icon::after{transform:rotate(135deg)}
+.dv-arrow[aria-disabled="true"]{opacity:.35;pointer-events:none}
+.dv-arrow:active,.dv-cta:active{transform:scale(.96)}
+@media screen and (max-width:991px){.dv-track{scroll-padding-left:48px}}
+@media screen and (max-width:767px){.dv-track{scroll-padding-left:24px}}
+@media (prefers-reduced-motion:reduce){.dv-card__frost,.dv-card__sub,.dv-card__desc,.dv-card__info-icon::before,.dv-card__info-icon::after{transition:none}}
+</style>
+<section class="dv" id="divisions">
+  <div class="dv-inner">
+    <div class="dv-heading">
+      <p class="dv-eyebrow">Everyone is welcome.</p>
+      <h2 class="dv-title">A 12 Week Basketball Season.</h2>
+      <p class="dv-title2">Across 6 Skill Levels.</p>
+    </div>
+    <div class="dv-controls">
+      <a href="#" class="dv-arrow dv-arrow--prev" role="button" aria-label="Previous divisions"><div class="dv-arrow__chev dv-arrow__chev--prev"></div></a>
+      <a href="#" class="dv-arrow dv-arrow--next" role="button" aria-label="Next divisions"><div class="dv-arrow__chev"></div></a>
+    </div>
+    <div class="dv-track">
+      <div class="dv-items">
+                <div class="dv-slot">
+          <div class="dv-card" tabindex="0">
+            <img class="dv-card__img" src="assets/div-d6.jpg" alt="">
+            <div class="dv-card__frost"></div>
+            <div class="dv-card__content">
+              <h3 class="dv-card__title">D6 Beginner</h3>
+              <p class="dv-card__sub">Everyone Starts Somewhere.</p>
+              <p class="dv-card__desc">D6 is for athletes who have never played organized basketball. No experience required — just the willingness to show up, learn, and grow. Everyone starts somewhere.</p>
+            </div>
+            <a href="#" class="dv-card__info" role="button" aria-label="About D6 Beginner"><div class="dv-card__info-icon"></div></a>
+          </div>
+        </div>
+        <div class="dv-slot">
+          <div class="dv-card" tabindex="0">
+            <img class="dv-card__img" src="assets/div-d5.jpg" alt="">
+            <div class="dv-card__frost"></div>
+            <div class="dv-card__content">
+              <h3 class="dv-card__title">D5 Rookie</h3>
+              <p class="dv-card__sub">The League Starts Here.</p>
+              <p class="dv-card__desc">D5 is for athletes stepping into organized ball for the first time — building confidence, finding their footing, and competing on a real court.</p>
+            </div>
+            <a href="#" class="dv-card__info" role="button" aria-label="About D5 Rookie"><div class="dv-card__info-icon"></div></a>
+          </div>
+        </div>
+        <div class="dv-slot">
+          <div class="dv-card" tabindex="0">
+            <img class="dv-card__img" src="assets/div-d4.jpg" alt="">
+            <div class="dv-card__frost"></div>
+            <div class="dv-card__content">
+              <h3 class="dv-card__title">D4 Rec</h3>
+              <p class="dv-card__sub">Growth Starts Here.</p>
+              <p class="dv-card__desc">D4 is for players sharpening their skills, improving their game IQ, showing flashes of potential. This is the space between learning and competing.</p>
+            </div>
+            <a href="#" class="dv-card__info" role="button" aria-label="About D4 Rec"><div class="dv-card__info-icon"></div></a>
+          </div>
+        </div>
+        <div class="dv-slot">
+          <div class="dv-card" tabindex="0">
+            <img class="dv-card__img" src="assets/div-d3.jpg" alt="">
+            <div class="dv-card__frost"></div>
+            <div class="dv-card__content">
+              <h3 class="dv-card__title">D3 Inter</h3>
+              <p class="dv-card__sub">You’ve Got Game.</p>
+              <p class="dv-card__desc">D3 players are consistent, confident, and ready to compete at pace. You know the systems, the flow, and you bring it every night.</p>
+            </div>
+            <a href="#" class="dv-card__info" role="button" aria-label="About D3 Inter"><div class="dv-card__info-icon"></div></a>
+          </div>
+        </div>
+        <div class="dv-slot">
+          <div class="dv-card" tabindex="0">
+            <img class="dv-card__img" src="assets/div-d2.jpg" alt="">
+            <div class="dv-card__frost"></div>
+            <div class="dv-card__content">
+              <h3 class="dv-card__title">D2 Comp</h3>
+              <p class="dv-card__sub">Every Game Is A Statement.</p>
+              <p class="dv-card__desc">D2 is made for high-level players refining their edge, preparing for exposure, and proving they belong in the top tier.</p>
+            </div>
+            <a href="#" class="dv-card__info" role="button" aria-label="About D2 Comp"><div class="dv-card__info-icon"></div></a>
+          </div>
+        </div>
+        <div class="dv-slot">
+          <div class="dv-card" tabindex="0">
+            <img class="dv-card__img" src="assets/div-d1.jpg" alt="">
+            <div class="dv-card__frost"></div>
+            <div class="dv-card__content">
+              <h3 class="dv-card__title">D1 Elite</h3>
+              <p class="dv-card__sub">Where Legends Live.</p>
+              <p class="dv-card__desc">D1 is for the most dominant and skilled players in the league. This is where the game slows down, the lights get brighter, and every move matters.</p>
+            </div>
+            <a href="#" class="dv-card__info" role="button" aria-label="About D1 Elite"><div class="dv-card__info-icon"></div></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <a class="dv-cta" href="https://athletes.brodierec.com/registrations/new">Become an Athlete</a>
+  </div>
+</section>
+
+  <script>
+(function(){
+  var root=document.querySelector('.dv'); if(!root) return;
+  var track=root.querySelector('.dv-track'), prev=root.querySelector('.dv-arrow--prev'), next=root.querySelector('.dv-arrow--next');
+  if(!track) return;
+  var coarse=window.matchMedia('(hover:none)').matches;
+  function slot(){return root.querySelector('.dv-slot');}
+  function step(){var s=slot(); if(!s) return 436; var cs=getComputedStyle(s.parentNode); return s.getBoundingClientRect().width+(parseFloat(cs.columnGap)||parseFloat(cs.gap)||16);}
+  function padLeft(){return parseFloat(getComputedStyle(track).scrollPaddingLeft)||0;}
+  function perClick(){var vis=Math.floor((track.clientWidth-padLeft())/step()); return Math.max(1,Math.min(2,vis));}   // advance one card, or two when two or more fit
+  function go(dir){track.scrollBy({left:dir*perClick()*step(),behavior:'smooth'});}
+  function updateArrows(){var max=track.scrollWidth-track.clientWidth-1, x=track.scrollLeft;
+    if(prev) prev.setAttribute('aria-disabled',x<=1?'true':'false'); if(next) next.setAttribute('aria-disabled',x>=max?'true':'false');}
+  if(prev) prev.addEventListener('click',function(e){e.preventDefault();go(-1);});
+  if(next) next.addEventListener('click',function(e){e.preventDefault();go(1);});
+  var raf; track.addEventListener('scroll',function(){cancelAnimationFrame(raf);raf=requestAnimationFrame(updateArrows);},{passive:true});
+  window.addEventListener('resize',updateArrows); updateArrows(); setTimeout(updateArrows,400);
+
+  /* overlay: hover on pointer devices (CSS); tap the card or its (+) on touch; Escape or a tap elsewhere closes */
+  function cards(){return Array.prototype.slice.call(root.querySelectorAll('.dv-card'));}
+  function closeAll(except){cards().forEach(function(c){if(c!==except) c.classList.remove('dv-open');});}
+  function toggle(card){var open=!card.classList.contains('dv-open'); closeAll(card); card.classList.toggle('dv-open',open);}
+  root.addEventListener('click',function(e){
+    var info=e.target.closest('.dv-card__info'), card=e.target.closest('.dv-card');
+    if(info&&card){e.preventDefault(); toggle(card); return;}
+    if(card&&coarse){toggle(card);}
+  });
+  document.addEventListener('click',function(e){ if(!e.target.closest('.dv-card')) closeAll(null); });
+  root.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){closeAll(null); return;}
+    if(!e.target.closest('.dv-arrow,.dv-card,.dv-card__info')) return;
+    if(e.key==='ArrowRight'){e.preventDefault();go(1);} else if(e.key==='ArrowLeft'){e.preventDefault();go(-1);}
+  });
+})();
+</script>
+  <!-- DV:END -->
+
   <div class="harness-spacer">↓ next page section (harness)</div>
   <div class="harness-debug" id="ssc-debug" hidden></div>
 </body>

@@ -1,0 +1,36 @@
+<!-- Divisions carousel · native horizontal scroll + paddles + hover / tap overlay (page footer) -->
+<script>
+(function(){
+  var root=document.querySelector('.dv'); if(!root) return;
+  var track=root.querySelector('.dv-track'), prev=root.querySelector('.dv-arrow--prev'), next=root.querySelector('.dv-arrow--next');
+  if(!track) return;
+  var coarse=window.matchMedia('(hover:none)').matches;
+  function slot(){return root.querySelector('.dv-slot');}
+  function step(){var s=slot(); if(!s) return 436; var cs=getComputedStyle(s.parentNode); return s.getBoundingClientRect().width+(parseFloat(cs.columnGap)||parseFloat(cs.gap)||16);}
+  function padLeft(){return parseFloat(getComputedStyle(track).scrollPaddingLeft)||0;}
+  function perClick(){var vis=Math.floor((track.clientWidth-padLeft())/step()); return Math.max(1,Math.min(2,vis));}   // advance one card, or two when two or more fit
+  function go(dir){track.scrollBy({left:dir*perClick()*step(),behavior:'smooth'});}
+  function updateArrows(){var max=track.scrollWidth-track.clientWidth-1, x=track.scrollLeft;
+    if(prev) prev.setAttribute('aria-disabled',x<=1?'true':'false'); if(next) next.setAttribute('aria-disabled',x>=max?'true':'false');}
+  if(prev) prev.addEventListener('click',function(e){e.preventDefault();go(-1);});
+  if(next) next.addEventListener('click',function(e){e.preventDefault();go(1);});
+  var raf; track.addEventListener('scroll',function(){cancelAnimationFrame(raf);raf=requestAnimationFrame(updateArrows);},{passive:true});
+  window.addEventListener('resize',updateArrows); updateArrows(); setTimeout(updateArrows,400);
+
+  /* overlay: hover on pointer devices (CSS); tap the card or its (+) on touch; Escape or a tap elsewhere closes */
+  function cards(){return Array.prototype.slice.call(root.querySelectorAll('.dv-card'));}
+  function closeAll(except){cards().forEach(function(c){if(c!==except) c.classList.remove('dv-open');});}
+  function toggle(card){var open=!card.classList.contains('dv-open'); closeAll(card); card.classList.toggle('dv-open',open);}
+  root.addEventListener('click',function(e){
+    var info=e.target.closest('.dv-card__info'), card=e.target.closest('.dv-card');
+    if(info&&card){e.preventDefault(); toggle(card); return;}
+    if(card&&coarse){toggle(card);}
+  });
+  document.addEventListener('click',function(e){ if(!e.target.closest('.dv-card')) closeAll(null); });
+  root.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){closeAll(null); return;}
+    if(!e.target.closest('.dv-arrow,.dv-card,.dv-card__info')) return;
+    if(e.key==='ArrowRight'){e.preventDefault();go(1);} else if(e.key==='ArrowLeft'){e.preventDefault();go(-1);}
+  });
+})();
+</script>

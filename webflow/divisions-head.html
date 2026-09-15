@@ -1,0 +1,29 @@
+<!-- Divisions carousel · behaviour layer (page head). Static/visual styles live on the Webflow classes. -->
+<style>
+.dv-track{overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-left:80px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.dv-track::-webkit-scrollbar{display:none}
+.dv-slot{scroll-snap-align:start}
+.dv-card__content{pointer-events:none}
+.dv-card__title{position:relative}
+.dv-card__frost,.dv-card__sub,.dv-card__desc{transition:opacity .55s cubic-bezier(.2,.6,.2,1),transform .55s cubic-bezier(.2,.6,.2,1)}
+.dv-card__desc{transform:translateY(10px)}
+.dv-card.dv-open .dv-card__frost{opacity:1}
+.dv-card.dv-open .dv-card__sub{opacity:0;transform:translateY(-6px)}
+.dv-card.dv-open .dv-card__desc{opacity:1;transform:none}
+@media (hover:hover){
+  .dv-card:hover .dv-card__frost{opacity:1}
+  .dv-card:hover .dv-card__sub{opacity:0;transform:translateY(-6px)}
+  .dv-card:hover .dv-card__desc{opacity:1;transform:none}
+}
+@media (hover:none){.dv-card__info{display:flex}}
+.dv-card:focus-within .dv-card__info{display:flex}
+.dv-card__info-icon::before,.dv-card__info-icon::after{content:'';position:absolute;left:50%;top:50%;width:14px;height:2px;margin:-1px 0 0 -7px;background:#000;border-radius:1px;transition:transform .45s cubic-bezier(.2,.6,.2,1)}
+.dv-card__info-icon::after{transform:rotate(90deg)}
+.dv-card.dv-open .dv-card__info-icon::before{transform:rotate(45deg)}
+.dv-card.dv-open .dv-card__info-icon::after{transform:rotate(135deg)}
+.dv-arrow[aria-disabled="true"]{opacity:.35;pointer-events:none}
+.dv-arrow:active,.dv-cta:active{transform:scale(.96)}
+@media screen and (max-width:991px){.dv-track{scroll-padding-left:48px}}
+@media screen and (max-width:767px){.dv-track{scroll-padding-left:24px}}
+@media (prefers-reduced-motion:reduce){.dv-card__frost,.dv-card__sub,.dv-card__desc,.dv-card__info-icon::before,.dv-card__info-icon::after{transition:none}}
+</style>
