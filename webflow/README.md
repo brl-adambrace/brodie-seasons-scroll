@@ -28,3 +28,13 @@ Second section on the same page (`section.dv`, right after `section.ssc`). Drive
 Behaviour: the row is a native horizontal scroller with snap (trackpad, Magic Mouse, swipe). Paddles scroll one card, or two when two or more fit, and disable at the ends. Hover reveals the frosted overlay; on touch (or keyboard focus) a + button appears and a tap on the card or the button toggles it; tapping elsewhere or Escape closes.
 
 Sources: `divisions-static.css` (Webflow classes, via WHTML), `divisions-head.html`, `divisions-footer.html`, `divisions-prototype.html`. `build.mjs` rebuilds `index.html` from these; `build-page-code.mjs` produces the combined, comment-stripped page head/footer (`dist/`) that goes into the page settings — page-level custom code is capped at 10,000 characters per block.
+
+## Ways to Play (added 15 Sep 2026)
+
+Third section on the page (`section.wyp`, after `section.dv`), from Figma node 5448-12751. Left column: eyebrow, title, subtitle, "Find Your Game" CTA. Right column: a three-item accordion (Start A Team open by default; Join A Team and Drop-In Run collapsed). Static native elements — every text and button is editable in the Designer/Editor; duplicate a `.wyp-item` to add another way to play (give the default-open one the `wyp-open` class).
+
+**Video backdrop:** `.wyp-media` fills the section; inside it `.wyp-video-wrap` is `position:sticky; top:0; height:100vh`, so the video always fills the viewport while the section grows with the open accordion. The `<video>` currently points at the site's existing "Join the movement" background-video transcodes (webm + mp4) as a stand-in — swap the two `<source>` URLs (or replace the element with a Webflow Background Video) when the final clip is ready. Poster = the Figma still (`assets/wyp-poster.jpg`, also uploaded to the Webflow asset library as `ways-to-play-video-poster`).
+
+**Placeholders to review:** the Join A Team and Drop-In Run body copy (marked "Placeholder copy"), their CTA labels/links (`/join-a-team`, `/locations`), and the Start A Team "Learn More" link (`/start-a-team`).
+
+Sources: `waystoplay-static.css`, `waystoplay-head.html`, `waystoplay-footer.html`, `waystoplay-prototype.html`. Page code is now minified with terser by `build-page-code.mjs` (run `npm install` once).
