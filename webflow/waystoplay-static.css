@@ -7,7 +7,7 @@
 .wyp-intro{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:24px;padding-right:42px}
 .wyp-intro__text{display:flex;flex-direction:column;gap:8px;width:100%}
 .wyp-eyebrow{margin:0;font-weight:500;font-size:18px;line-height:1.4;color:#6b6765}
-.wyp-title{margin:0;font-weight:600;font-size:56px;line-height:1.1;letter-spacing:-2px;color:#fff}
+.wyp-title{margin:0;font-weight:600;font-size:56px;line-height:1.1;letter-spacing:-2px;color:#fff;text-transform:none}
 .wyp-sub{margin:0;font-weight:600;font-size:20px;line-height:1.35;color:#6b6765}
 .wyp-cta{display:flex;align-items:center;justify-content:center;min-width:192px;height:48px;padding:0 24px;border-radius:48px;background-color:#eae8e8;color:#000;font-weight:600;font-size:16px;line-height:1.5;text-decoration:none;transition:transform 0.15s ease-out,background-color 0.2s ease-out}
 .wyp-cta:hover{background-color:#fff}
