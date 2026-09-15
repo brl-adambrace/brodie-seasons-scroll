@@ -99,7 +99,8 @@ window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(funct
 var root=document.querySelector('.dv'); if(!root) return;
 var track=root.querySelector('.dv-track'), prev=root.querySelector('.dv-arrow--prev'), next=root.querySelector('.dv-arrow--next');
 if(!track) return;
-var coarse=window.matchMedia('(hover:none)').matches;
+var coarse=window.matchMedia('(hover:none)').matches, lastPointer='mouse';
+root.addEventListener('pointerdown',function(e){lastPointer=e.pointerType||'mouse';},true);
 function slot(){return root.querySelector('.dv-slot');}
 function step(){var s=slot(); if(!s) return 436; var cs=getComputedStyle(s.parentNode); return s.getBoundingClientRect().width+(parseFloat(cs.columnGap)||parseFloat(cs.gap)||16);}
 function padLeft(){return parseFloat(getComputedStyle(track).scrollPaddingLeft)||0;}
@@ -117,7 +118,7 @@ function toggle(card){var open=!card.classList.contains('dv-open'); closeAll(car
 root.addEventListener('click',function(e){
 var info=e.target.closest('.dv-card__info'), card=e.target.closest('.dv-card');
 if(info&&card){e.preventDefault(); toggle(card); return;}
-if(card&&coarse){toggle(card);}
+if(card&&(coarse||lastPointer==='touch')){toggle(card);}
 });
 document.addEventListener('click',function(e){ if(!e.target.closest('.dv-card')) closeAll(null); });
 root.addEventListener('keydown',function(e){

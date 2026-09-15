@@ -475,7 +475,10 @@
   .dv-card:hover .dv-card__desc{opacity:1;transform:none}
 }
 @media (hover:none){.dv-card__info{display:flex}}
-.dv-card:focus-within .dv-card__info{display:flex}
+.dv-card:focus-visible{outline:none}
+.dv-card:focus-visible .dv-card__frost{opacity:1}
+.dv-card:focus-visible .dv-card__sub{opacity:0;transform:translateY(-6px)}
+.dv-card:focus-visible .dv-card__desc{opacity:1;transform:none}
 .dv-card__info-icon::before,.dv-card__info-icon::after{content:'';position:absolute;left:50%;top:50%;width:14px;height:2px;margin:-1px 0 0 -7px;background:#000;border-radius:1px;transition:transform .45s cubic-bezier(.2,.6,.2,1)}
 .dv-card__info-icon::after{transform:rotate(90deg)}
 .dv-card.dv-open .dv-card__info-icon::before{transform:rotate(45deg)}
@@ -582,7 +585,8 @@
   var root=document.querySelector('.dv'); if(!root) return;
   var track=root.querySelector('.dv-track'), prev=root.querySelector('.dv-arrow--prev'), next=root.querySelector('.dv-arrow--next');
   if(!track) return;
-  var coarse=window.matchMedia('(hover:none)').matches;
+  var coarse=window.matchMedia('(hover:none)').matches, lastPointer='mouse';
+  root.addEventListener('pointerdown',function(e){lastPointer=e.pointerType||'mouse';},true);
   function slot(){return root.querySelector('.dv-slot');}
   function step(){var s=slot(); if(!s) return 436; var cs=getComputedStyle(s.parentNode); return s.getBoundingClientRect().width+(parseFloat(cs.columnGap)||parseFloat(cs.gap)||16);}
   function padLeft(){return parseFloat(getComputedStyle(track).scrollPaddingLeft)||0;}
@@ -602,7 +606,7 @@
   root.addEventListener('click',function(e){
     var info=e.target.closest('.dv-card__info'), card=e.target.closest('.dv-card');
     if(info&&card){e.preventDefault(); toggle(card); return;}
-    if(card&&coarse){toggle(card);}
+    if(card&&(coarse||lastPointer==='touch')){toggle(card);}   // touch only: mouse clicks never show the icon/overlay, hover does
   });
   document.addEventListener('click',function(e){ if(!e.target.closest('.dv-card')) closeAll(null); });
   root.addEventListener('keydown',function(e){
