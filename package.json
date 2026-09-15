@@ -1,0 +1,9 @@
+{
+  "name": "brodie-seasons-scroll",
+  "private": true,
+  "description": "Brodie landing-page prototypes (seasons hero carousel, divisions carousel, ways to play) and their Webflow payload builders",
+  "scripts": {
+    "build": "node webflow/build.mjs && node webflow/build-page-code.mjs"
+  },
+  "devDependencies": { "terser": "^5" }
+}

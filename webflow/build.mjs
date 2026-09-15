@@ -33,6 +33,13 @@ const dfoot=read('divisions-footer.html'); const dScript=dfoot.slice(dfoot.index
 const block=`<!-- DV:START -->\n  <style>\n${read('divisions-static.css')}  </style>\n  ${headCss}\n${markup}\n  ${dScript}\n  <!-- DV:END -->`;
 if(html.includes('<!-- DV:START -->')) html=html.replace(/<!-- DV:START -->[\s\S]*?<!-- DV:END -->/,block);
 else html=html.replace('<!-- SSC:END -->','<!-- SSC:END -->\n\n  '+block);
+// ways to play block
+const whead=read("waystoplay-head.html"); const wheadCss=whead.slice(whead.indexOf("<style>"),whead.indexOf("</style>")+8);
+const wfoot=read("waystoplay-footer.html"); const wScript=wfoot.slice(wfoot.indexOf("<script>"),wfoot.indexOf("</script>")+9);
+const wblock=`<!-- WYP:START -->\n  <style>\n${read("waystoplay-static.css")}  </style>\n  ${wheadCss}\n${read("waystoplay-prototype.html")}\n  ${wScript}\n  <!-- WYP:END -->`;
+if(html.includes("<!-- WYP:START -->")) html=html.replace(/<!-- WYP:START -->[\s\S]*?<!-- WYP:END -->/,wblock);
+else html=html.replace("<!-- DV:END -->","<!-- DV:END -->\n\n  "+wblock);
+new Function(wScript.slice(8,-9));
 fs.writeFileSync(idx,html);
 new Function(sScript.slice(8,-9)); new Function(dScript.slice(8,-9));
 console.log('index.html rebuilt:',html.length,'chars; DV block',block.length);

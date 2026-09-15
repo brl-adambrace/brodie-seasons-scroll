@@ -1,0 +1,16 @@
+<!-- Ways to Play · accordion (page footer). One item open at a time; Enter/Space toggle; video plays muted inline. -->
+<script>
+(function(){
+  var root=document.querySelector('.wyp'); if(!root) return;
+  var items=Array.prototype.slice.call(root.querySelectorAll('.wyp-item'));
+  function setOpen(item,open){ item.classList.toggle('wyp-open',open); var h=item.querySelector('.wyp-item__head'); if(h) h.setAttribute('aria-expanded',open?'true':'false'); }
+  function toggle(item){ var open=!item.classList.contains('wyp-open'); items.forEach(function(it){ if(it!==item) setOpen(it,false); }); setOpen(item,open); }
+  items.forEach(function(item){
+    var head=item.querySelector('.wyp-item__head'); if(!head) return;
+    setOpen(item,item.classList.contains('wyp-open'));
+    head.addEventListener('click',function(e){ e.preventDefault(); toggle(item); });
+    head.addEventListener('keydown',function(e){ if(e.key===' '||e.key==='Spacebar'){ e.preventDefault(); toggle(item); } });
+  });
+  var v=root.querySelector('video'); if(v){ v.muted=true; var p=v.play(); if(p&&p.catch) p.catch(function(){}); }
+})();
+</script>

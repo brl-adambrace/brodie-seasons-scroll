@@ -1,0 +1,13 @@
+<!-- Ways to Play · behaviour layer (page head): accordion motion, chevron, sticky video sizing -->
+<style>
+@supports (height:1svh){.wyp{min-height:100svh}.wyp-video-wrap{height:100svh}.wyp-inner{min-height:100svh}}
+.wyp-item__body{transition:grid-template-rows .6s cubic-bezier(.2,.6,.2,1)}
+.wyp-item.wyp-open .wyp-item__body{grid-template-rows:1fr}
+.wyp-item__panel{opacity:0;transform:translateY(6px);transition:opacity .45s cubic-bezier(.2,.6,.2,1) .05s,transform .45s cubic-bezier(.2,.6,.2,1) .05s}
+.wyp-item.wyp-open .wyp-item__panel{opacity:1;transform:none}
+.wyp-item__chev{transition:transform .5s cubic-bezier(.2,.6,.2,1),margin .5s cubic-bezier(.2,.6,.2,1)}
+.wyp-item.wyp-open .wyp-item__chev{transform:rotate(-135deg);margin:8px 8px 0 0}
+.wyp-item__head:focus-visible{outline:2px solid #fff;outline-offset:4px;border-radius:4px}
+.wyp-cta:active,.wyp-btn:active{transform:scale(.96)}
+@media (prefers-reduced-motion:reduce){.wyp-item__body,.wyp-item__panel,.wyp-item__chev{transition:none}}
+</style>
