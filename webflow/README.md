@@ -20,3 +20,11 @@ Colours are plain-text hex because the API can't bind a Color field to text or t
 ## Moving the section to a real page
 
 Copy the `section.ssc` element in the Designer and paste it on the target page, then copy `head.html` into that page's head code and `footer.html` into its footer code (or move both to site-wide custom code). The section pins with ScrollTrigger, so its parent must have no CSS transform. The Designer canvas shows the four slots stacked at the centre — that's expected; positions and the scroll animation only run on the published page.
+
+## Divisions carousel (added 15 Sep 2026)
+
+Second section on the same page (`section.dv`, right after `section.ssc`). Driven by the existing **Divisions** collection (`6953fd7bfdbf03c11196c59f`) — two fields were added: **Carousel order** (1 = leftmost; the list is sorted by it and hides items without one) and **Carousel image** (portrait; the landscape *Image* stays for the Divisions page). Card = name → title, Subheading → resting caption, Description → the frosted overlay copy. A new **D6 Beginner** item was created (its tags, availability, button text and subheading are placeholders to review).
+
+Behaviour: the row is a native horizontal scroller with snap (trackpad, Magic Mouse, swipe). Paddles scroll one card, or two when two or more fit, and disable at the ends. Hover reveals the frosted overlay; on touch (or keyboard focus) a + button appears and a tap on the card or the button toggles it; tapping elsewhere or Escape closes.
+
+Sources: `divisions-static.css` (Webflow classes, via WHTML), `divisions-head.html`, `divisions-footer.html`, `divisions-prototype.html`. `build.mjs` rebuilds `index.html` from these; `build-page-code.mjs` produces the combined, comment-stripped page head/footer (`dist/`) that goes into the page settings — page-level custom code is capped at 10,000 characters per block.
