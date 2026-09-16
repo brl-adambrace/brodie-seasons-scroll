@@ -3,7 +3,7 @@
      Video: nothing downloads until the page has loaded and the section is within half a viewport. The best-fitting
      encode (720p on phones, HEVC where the browser can decode it) is fetched in full, parked on the poster frame
      (data-start = the poster's timestamp) and cross-faded in, then plays. A pause/play control is added in a
-     sticky bar at the end of the section (so it sits in the viewport corner above the content); it doubles as an opt-in for reduced-motion / data-saver visitors, who only get the poster. -->
+     sticky bar at the end of the section (so it sits in the bottom-left viewport corner above the content; bottom-right belongs to the site's Intercom launcher); it doubles as an opt-in for reduced-motion / data-saver visitors, who only get the poster. -->
 <script>
 (function(){
   var root=document.querySelector('.wyp'); if(!root) return;
@@ -33,19 +33,20 @@
   function setPaused(p){ root.classList.toggle('wyp-paused',p); btn.setAttribute('aria-label',p?'Play background video':'Pause background video'); btn.setAttribute('aria-pressed',p?'true':'false'); }
   setPaused(false);
 
-  function play(){ if(userPaused||!inView||state!=='ready') return; var p=video.play(); if(p&&p.catch) p.catch(function(){}); }
+  function play(){ if(userPaused||!inView||state!=='ready') return; var p=video.play(); if(p&&p.catch) p.catch(function(e){ if(e&&e.name==='NotAllowedError'){ userPaused=true; setPaused(true); } }); } // refused autoplay (e.g. iOS Low Power Mode) → offer the play button instead
   function show(){ if(shown) return; shown=true; root.classList.add('wyp-video-on'); root.classList.add('wyp-ctl'); setTimeout(play,750); } // fade over the identical frame, then move
   function ready(){
     if(state!=='loading') return; state='ready';
     var t=setTimeout(show,1500); video.addEventListener('seeked',function(){ clearTimeout(t); show(); },{once:true});
     if(start>0&&start<(video.duration||1e9)){ try{ video.currentTime=start; }catch(e){ clearTimeout(t); show(); } } else { clearTimeout(t); show(); }
   }
-  function attach(src){ video.src=src; video.load(); }
+  function attach(src){ video.preload='auto'; video.src=src; video.load(); }
   function load(){
-    if(state!=='idle') return; state='loading';
+    if(state!=='idle') return; state='loading'; root.classList.add('wyp-ctl');
     video.addEventListener('canplaythrough',ready,{once:true});
+    video.addEventListener('loadeddata',function(){ setTimeout(function(){ if(state==='loading'&&video.readyState>=2) ready(); },2500); },{once:true}); // WebKit backstop if canplaythrough never fires
     video.addEventListener('error',function(){ state='failed'; root.classList.remove('wyp-ctl'); });
-    var fallback=function(){ video.preload='auto'; attach(url); };
+    var fallback=function(){ attach(url); };
     if(window.fetch&&window.URL&&URL.createObjectURL){
       fetch(url,{mode:'cors',credentials:'omit'}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.blob(); })
         .then(function(b){ attach(URL.createObjectURL(b)); }).catch(fallback);
