@@ -623,6 +623,7 @@
 .wyp{position:relative;min-height:100vh;background-color:#000;color:#fff}
 .wyp-media{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}
 .wyp-video-wrap{position:sticky;top:0;width:100%;height:100vh;overflow:hidden}
+.wyp-poster{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;max-width:none;object-fit:cover;display:block}
 .wyp-video{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover;display:block}
 .wyp-scrim{position:absolute;top:0;right:0;bottom:0;left:0;background-color:rgba(0,0,0,0.45)}
 .wyp-inner{position:relative;display:flex;align-items:flex-start;gap:16px;padding:80px;min-height:100vh;width:100%}
@@ -664,15 +665,33 @@
 .wyp-item.wyp-open .wyp-item__chev{transform:rotate(-135deg);margin:8px 8px 0 0}
 .wyp-item__head:focus-visible{outline:2px solid #fff;outline-offset:4px;border-radius:4px}
 .wyp-cta:active,.wyp-btn:active{transform:scale(.96)}
+/* video: hidden until the whole file is downloaded and parked on the poster frame, then cross-fades in */
+.wyp-video{opacity:0;transition:opacity .8s ease}
+.wyp.wyp-video-on .wyp-video{opacity:1}
+/* pause / play control (created by the footer script): a zero-height sticky bar at the end of the section keeps the
+   button pinned to the viewport corner while the section is on screen, above the content layer */
+.wyp-ctl-bar{position:sticky;bottom:24px;height:0;z-index:3;pointer-events:none}
+.wyp-toggle{position:absolute;right:24px;bottom:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center;padding:0;margin:0;border:1px solid rgba(255,255,255,.18);border-radius:50%;background:rgba(0,0,0,.3);color:#fff;cursor:pointer;pointer-events:auto;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);-webkit-tap-highlight-color:transparent;opacity:0;visibility:hidden;transition:opacity .4s ease,visibility .4s,background-color .2s ease,transform .15s ease-out}
+.wyp.wyp-ctl .wyp-toggle{opacity:1;visibility:visible}
+.wyp-toggle:hover{background:rgba(0,0,0,.5)}
+.wyp-toggle:active{transform:scale(.94)}
+.wyp-toggle:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.wyp-toggle svg{width:20px;height:20px;display:block;fill:currentColor}
+.wyp-toggle__play{display:none}
+.wyp.wyp-paused .wyp-toggle__play{display:block}
+.wyp.wyp-paused .wyp-toggle__pause{display:none}
+@media (max-width:767px){.wyp-ctl-bar{bottom:16px}.wyp-toggle{right:16px;width:40px;height:40px}.wyp-toggle svg{width:18px;height:18px}}
 @media (prefers-reduced-motion:reduce){.wyp-item__body,.wyp-item__panel,.wyp-item__chev{transition:none}}
 </style>
 <section class="wyp" id="ways-to-play">
   <div class="wyp-media">
     <div class="wyp-video-wrap">
-      <video class="wyp-video" autoplay muted loop playsinline preload="metadata" poster="assets/wyp-poster.jpg">
-        <source src="https://cdn.prod.website-files.com/6921d2c2bd3b56136200df40%2F6a22365520e69d390d063f8c_Join%20the%20movement_webm.webm" type="video/webm">
-        <source src="https://cdn.prod.website-files.com/6921d2c2bd3b56136200df40%2F6a22365520e69d390d063f8c_Join%20the%20movement_mp4.mp4" type="video/mp4">
-      </video>
+      <img class="wyp-poster" src="assets/wyp-poster.jpg" alt="" width="1920" height="1080" loading="lazy" decoding="async">
+      <video class="wyp-video" muted loop playsinline preload="none" data-start="8.25"
+        data-src="https://cdn.prod.website-files.com/6921d2c2bd3b56136200df40/6aaab6c3cff59b0e5c2c4ee6_ways-to-play-1080.mp4"
+        data-src-sm="https://cdn.prod.website-files.com/6921d2c2bd3b56136200df40/6aaab6c4cff59b0e5c2c4f34_ways-to-play-720.mp4"
+        data-src-hevc="https://cdn.prod.website-files.com/6921d2c2bd3b56136200df40/6aaab6c4cc5885e56f7362b5_ways-to-play-1080-hevc.mp4"
+        data-src-sm-hevc="https://cdn.prod.website-files.com/6921d2c2bd3b56136200df40/6aaab6c4f7d6a09e102bb3ad_ways-to-play-720-hevc.mp4"></video>
       <div class="wyp-scrim"></div>
     </div>
   </div>
@@ -739,7 +758,58 @@
     head.addEventListener('click',function(e){ e.preventDefault(); toggle(item); });
     head.addEventListener('keydown',function(e){ if(e.key===' '||e.key==='Spacebar'){ e.preventDefault(); toggle(item); } });
   });
-  var v=root.querySelector('video'); if(v){ v.muted=true; var p=v.play(); if(p&&p.catch) p.catch(function(){}); }
+
+  var video=root.querySelector('.wyp-video'), wrap=root.querySelector('.wyp-video-wrap'); if(!video||!wrap) return;
+  var d=video.dataset, start=parseFloat(d.start)||0;
+  var conn=navigator.connection||{}, saveData=!!conn.saveData||/(^|-)2g$/.test(conn.effectiveType||'');
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var small=window.matchMedia('(max-width: 767px)').matches;
+  var hevc=!!video.canPlayType&&video.canPlayType('video/mp4; codecs="hvc1.1.6.L93.B0"')==='probably';
+  var url=small?((hevc&&d.srcSmHevc)||d.srcSm||d.src):((hevc&&d.srcHevc)||d.src); if(!url) return;
+  var state='idle', userPaused=false, inView=false, shown=false;
+  video.muted=true; video.loop=true;
+
+  var btn=document.createElement('button'); btn.type='button'; btn.className='wyp-toggle';
+  btn.innerHTML='<svg class="wyp-toggle__pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1"/><rect x="13.5" y="5" width="4" height="14" rx="1"/></svg><svg class="wyp-toggle__play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.6v12.8a1 1 0 0 0 1.53.85l10.2-6.4a1 1 0 0 0 0-1.7L9.53 4.75A1 1 0 0 0 8 5.6z"/></svg>';
+  var bar=document.createElement('div'); bar.className='wyp-ctl-bar'; bar.appendChild(btn); root.appendChild(bar);
+  function setPaused(p){ root.classList.toggle('wyp-paused',p); btn.setAttribute('aria-label',p?'Play background video':'Pause background video'); btn.setAttribute('aria-pressed',p?'true':'false'); }
+  setPaused(false);
+
+  function play(){ if(userPaused||!inView||state!=='ready') return; var p=video.play(); if(p&&p.catch) p.catch(function(){}); }
+  function show(){ if(shown) return; shown=true; root.classList.add('wyp-video-on'); root.classList.add('wyp-ctl'); setTimeout(play,750); } // fade over the identical frame, then move
+  function ready(){
+    if(state!=='loading') return; state='ready';
+    var t=setTimeout(show,1500); video.addEventListener('seeked',function(){ clearTimeout(t); show(); },{once:true});
+    if(start>0&&start<(video.duration||1e9)){ try{ video.currentTime=start; }catch(e){ clearTimeout(t); show(); } } else { clearTimeout(t); show(); }
+  }
+  function attach(src){ video.src=src; video.load(); }
+  function load(){
+    if(state!=='idle') return; state='loading';
+    video.addEventListener('canplaythrough',ready,{once:true});
+    video.addEventListener('error',function(){ state='failed'; root.classList.remove('wyp-ctl'); });
+    var fallback=function(){ video.preload='auto'; attach(url); };
+    if(window.fetch&&window.URL&&URL.createObjectURL){
+      fetch(url,{mode:'cors',credentials:'omit'}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.blob(); })
+        .then(function(b){ attach(URL.createObjectURL(b)); }).catch(fallback);
+    } else fallback();
+  }
+
+  btn.addEventListener('click',function(){
+    if(state==='ready'&&!video.paused){ userPaused=true; video.pause(); setPaused(true); return; }
+    userPaused=false; setPaused(false); inView=true;
+    if(state==='idle') load(); else play();
+  });
+
+  if(reduce||saveData){ userPaused=true; setPaused(true); root.classList.add('wyp-ctl'); } // poster only until the visitor opts in
+  function watch(){
+    if(!('IntersectionObserver' in window)){ inView=true; if(!userPaused) load(); return; }
+    new IntersectionObserver(function(es){ es.forEach(function(e){
+      inView=e.isIntersecting;
+      if(inView){ if(state==='idle'){ if(!userPaused) load(); } else play(); }
+      else if(state==='ready'&&!video.paused) video.pause();
+    }); },{rootMargin:'50% 0px'}).observe(root);
+  }
+  if(document.readyState==='complete') watch(); else window.addEventListener('load',watch);
 })();
 </script>
   <!-- WYP:END -->
