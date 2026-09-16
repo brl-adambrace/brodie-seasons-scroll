@@ -4,7 +4,7 @@
 .wyp-poster{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;max-width:none;object-fit:cover;display:block}
 .wyp-video{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover;display:block}
 .wyp-scrim{position:absolute;top:0;right:0;bottom:0;left:0;background-color:rgba(0,0,0,0.45)}
-.wyp-inner{position:relative;display:flex;align-items:flex-start;gap:16px;padding:80px;min-height:100vh;width:100%}
+.wyp-inner{position:relative;display:flex;align-items:flex-start;gap:16px;padding:80px;min-height:100vh}
 .wyp-intro{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:24px;padding-right:42px}
 .wyp-intro__text{display:flex;flex-direction:column;gap:8px;width:100%}
 .wyp-eyebrow{margin:0;font-weight:500;font-size:18px;line-height:1.4;color:#6b6765}

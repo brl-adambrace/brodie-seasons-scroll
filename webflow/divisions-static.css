@@ -4,7 +4,7 @@
 .dv-eyebrow{margin:0;font-weight:500;font-size:18px;line-height:1.4;color:#6b6765}
 .dv-title{margin:0;font-weight:600;font-size:56px;line-height:1.1;letter-spacing:-2px;color:#fff}
 .dv-title2{margin:-24px 0 0 0;font-weight:600;font-size:56px;line-height:1.1;letter-spacing:-2px;color:#6c6564}
-.dv-controls{display:flex;gap:16px;justify-content:flex-end;width:100%;padding:0 80px 0 80px}
+.dv-controls{display:flex;gap:16px;justify-content:flex-end;padding:0 80px 0 80px}
 .dv-arrow{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background-color:rgba(255,255,255,0.5);color:#000;text-decoration:none;cursor:pointer;transition:background-color 0.25s ease-out,opacity 0.25s ease-out,transform 0.15s ease-out}
 .dv-arrow:hover{background-color:rgba(255,255,255,0.72)}
 .dv-arrow__chev{width:10px;height:10px;border-top:2px solid #000;border-right:2px solid #000;transform:rotate(45deg);margin-left:-3px}
