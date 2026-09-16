@@ -429,6 +429,7 @@
 
   <!-- DV:START -->
   <style>
+.dv,.dv *{box-sizing:border-box}
 .dv{background-color:#000;color:#fff;padding:96px 0 80px 0}
 .dv-inner{display:flex;flex-direction:column;align-items:flex-start;gap:44px;width:100%}
 .dv-heading{display:flex;flex-direction:column;gap:24px;padding:0 80px 0 80px;max-width:1200px}
@@ -620,6 +621,7 @@
 
   <!-- WYP:START -->
   <style>
+.wyp,.wyp *{box-sizing:border-box}
 .wyp{position:relative;min-height:100vh;background-color:#000;color:#fff}
 .wyp-media{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}
 .wyp-video-wrap{position:sticky;top:0;width:100%;height:100vh;overflow:hidden}
@@ -677,9 +679,9 @@
 .wyp-toggle:active{transform:scale(.94)}
 .wyp-toggle:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .wyp-toggle svg{width:20px;height:20px;display:block;fill:currentColor}
-.wyp-toggle__play{display:none}
-.wyp.wyp-paused .wyp-toggle__play{display:block}
-.wyp.wyp-paused .wyp-toggle__pause{display:none}
+.wyp-toggle .wyp-toggle__play{display:none}
+.wyp.wyp-paused .wyp-toggle .wyp-toggle__play{display:block}
+.wyp.wyp-paused .wyp-toggle .wyp-toggle__pause{display:none}
 @media (max-width:767px){.wyp-ctl-bar{bottom:16px}.wyp-toggle{right:16px;width:40px;height:40px}.wyp-toggle svg{width:18px;height:18px}}
 @media (prefers-reduced-motion:reduce){.wyp-item__body,.wyp-item__panel,.wyp-item__chev{transition:none}}
 </style>

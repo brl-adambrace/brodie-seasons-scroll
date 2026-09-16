@@ -21,9 +21,9 @@
 .wyp-toggle:active{transform:scale(.94)}
 .wyp-toggle:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .wyp-toggle svg{width:20px;height:20px;display:block;fill:currentColor}
-.wyp-toggle__play{display:none}
-.wyp.wyp-paused .wyp-toggle__play{display:block}
-.wyp.wyp-paused .wyp-toggle__pause{display:none}
+.wyp-toggle .wyp-toggle__play{display:none}
+.wyp.wyp-paused .wyp-toggle .wyp-toggle__play{display:block}
+.wyp.wyp-paused .wyp-toggle .wyp-toggle__pause{display:none}
 @media (max-width:767px){.wyp-ctl-bar{bottom:16px}.wyp-toggle{right:16px;width:40px;height:40px}.wyp-toggle svg{width:18px;height:18px}}
 @media (prefers-reduced-motion:reduce){.wyp-item__body,.wyp-item__panel,.wyp-item__chev{transition:none}}
 </style>
