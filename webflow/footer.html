@@ -55,7 +55,20 @@
     }
     function render(){var S=step(); slots.forEach(function(slot,i){gsap.set(slot,{x:wrap(i-pos.v)*S});});}
     function applyRoles(){slots.forEach(function(slot,i){setRole(slot,offsetOf(i));});}
-    function layout(){gsap.killTweensOf(pos); pos.v=target; render(); applyRoles();}
+    // Fixed header (announcement bar + nav) on pages like Home: measure it, hand it to the CSS as --ssc-nav and enlarge the hero
+    // scale so the card, now sized to the frame below the header, still fills the whole viewport in the hero state.
+    var navOverride=parseFloat(root.getAttribute('data-nav-offset')), navEls=[], navT;
+    function findNav(){ navEls=[]; var h=0, els=document.querySelectorAll('body > *, body > * > *, body > * > * > *');
+      for(var i=0;i<els.length;i++){ var el=els[i]; if(el.closest('.ssc')) continue; var cs=getComputedStyle(el);
+        if(cs.position!=='fixed'||cs.display==='none'||cs.visibility==='hidden'||parseFloat(cs.opacity)===0||cs.pointerEvents==='none') continue;
+        var r=el.getBoundingClientRect(); if(r.height<8||r.height>innerHeight*.5||r.width<innerWidth*.6||r.top>2||r.top<-1) continue;   // header bars only, not overlays
+        navEls.push(el); if(r.bottom>h) h=r.bottom; }
+      return Math.round(h); }
+    function applyNav(){ var n=isNaN(navOverride)?findNav():navOverride; root.style.setProperty('--ssc-nav',n+'px');
+      var pct=parseFloat(getComputedStyle(root).getPropertyValue('--ssc-card-pct'))||86, sh=stage.clientHeight||innerHeight, cardH=pct/100*(sh-n);
+      root.style.setProperty('--ssc-hero-scale',(cardH>0?sh/cardH:100/pct).toFixed(5)); }
+    function layout(){applyNav(); gsap.killTweensOf(pos); pos.v=target; render(); applyRoles();}
+    window.addEventListener('load',function(){ layout(); if(window.ResizeObserver){ var ro=new ResizeObserver(function(){ clearTimeout(navT); navT=setTimeout(layout,120); }); navEls.forEach(function(el){ ro.observe(el); }); } });   // nav scripts may finish styling after DOMContentLoaded; re-layout if the header changes height (e.g. announcement bar closed)
     var lastGo=-1e9;
     function go(dir){
       if(!root.classList.contains('ssc-ready')) return;

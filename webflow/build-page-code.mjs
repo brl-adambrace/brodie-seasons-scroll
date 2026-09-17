@@ -22,7 +22,7 @@ for(let mask=0;mask<(1<<scripts.length);mask++){
   const h=extra?head+'\n'+extra:head; if(foot.length>LIMIT||h.length>LIMIT) continue;
   if(!best||h.length<best.h.length) best={foot,h,moved:scripts.filter((_,i)=>mask>>i&1).length};
 }
-if(!best) throw new Error('page code does not fit Webflow\'s 10,000-character blocks in any arrangement');
+if(!best){ console.warn('page-code build skipped: the combined code no longer fits Webflow\'s 10,000-character blocks. The sections ship as hosted scripts now (build-hosted.mjs); this page-code path is kept only for reference.'); process.exit(0); }
 const footer=best.foot, headOut=best.h; if(best.moved) console.log(best.moved+' script(s) moved to the head block (deferred to DOMContentLoaded) to stay under the cap');
 fs.mkdirSync(path.join(dir,'dist'),{recursive:true});
 fs.writeFileSync(path.join(dir,'dist','page-head.html'),headOut); fs.writeFileSync(path.join(dir,'dist','page-footer.html'),footer);

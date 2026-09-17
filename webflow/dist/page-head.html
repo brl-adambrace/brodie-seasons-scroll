@@ -1,15 +1,17 @@
 <style>
 .ssc{--ssc-card-pct:86;--ssc-gap:16px;--ssc-radius:32px;--ssc-side-shift:72px;--ssc-peek-dim:.22;--ssc-shade:.84;--ssc-vh:1vh;
---ssc-hero-scale:calc(100 / var(--ssc-card-pct));--ssc-card-w:calc(var(--ssc-card-pct) * 1vw);--ssc-card-h:calc(var(--ssc-card-pct) * var(--ssc-vh));
+--ssc-nav:0px;--ssc-hero-scale:calc(100 / var(--ssc-card-pct));--ssc-card-w:calc(var(--ssc-card-pct) * 1vw);--ssc-card-h:calc(var(--ssc-card-pct) / 100 * (100 * var(--ssc-vh) - var(--ssc-nav)));
 --t-shape:0;--t-content:0;--t-shade:0;--t-sides:0;--t-ui:0}
 @supports (height:1svh){.ssc{--ssc-vh:1svh}}
 .ssc-stage{height:calc(100 * var(--ssc-vh))}
 .ssc-track .w-dyn-list,.ssc-track .w-dyn-items{position:absolute;top:0;right:0;bottom:0;left:0}
-.ssc-slot{width:var(--ssc-card-w);height:var(--ssc-card-h);margin:calc(var(--ssc-card-h) / -2) 0 0 calc(var(--ssc-card-w) / -2);will-change:transform}
+.ssc-slot{width:var(--ssc-card-w);height:var(--ssc-card-h);margin:calc(var(--ssc-card-h) / -2 + var(--ssc-nav) / 2) 0 0 calc(var(--ssc-card-w) / -2);will-change:transform}
 .ssc-slot.ssc-left{--dir:-1}
 .ssc-slot.ssc-right{--dir:1}
 .ssc.ssc-ready .ssc-slot:not(.ssc-active){cursor:pointer}
-.ssc-card{transform:translate3d(calc(var(--dir,0) * var(--ssc-side-shift) * (1 - var(--t-sides))),0,0) scale(var(--card-scale,1));transform-origin:50% 50%}
+.ssc-hero-copy{padding-top:max(104px,calc(var(--ssc-nav) + 56px))}
+.ssc-arrow{top:calc(50% + var(--ssc-nav) / 2)}
+.ssc-card{transform:translate3d(calc(var(--dir,0) * var(--ssc-side-shift) * (1 - var(--t-sides))),calc(var(--ssc-nav) / -2 * (1 - var(--t-shape))),0) scale(var(--card-scale,1));transform-origin:50% 50%}
 .ssc-slot.ssc-active .ssc-card{--card-scale:calc(1 + (var(--ssc-hero-scale) - 1) * (1 - var(--t-shape)));border-radius:calc(var(--ssc-radius) * var(--t-shape))}
 .ssc-slot:not(.ssc-active) .ssc-card{opacity:var(--t-sides)}
 .ssc-card__shade{background:linear-gradient(180deg,rgba(0,0,0,0) 32%,rgba(0,0,0,calc(var(--ssc-shade) * .3)) 50%,rgba(0,0,0,calc(var(--ssc-shade) * .74)) 68%,rgba(0,0,0,var(--ssc-shade)) 90%,rgba(0,0,0,var(--ssc-shade)) 100%)}
