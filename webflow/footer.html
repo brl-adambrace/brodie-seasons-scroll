@@ -26,7 +26,9 @@
        The current season is the card whose pill has text (fill Pill text only on the current season). */
     var COLOR=/^(#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})|rgba?\([^)]*\))$/i;
     function readColor(card,sel,attr){var el=card.querySelector(sel);var v=(card.getAttribute(attr)||(el?el.textContent:'')||'').trim();return COLOR.test(v)?v:null;}
-    var active=-1;
+    // Which card leads (hero image + centre of the carousel): the season with Registration Open (CMS switch → the
+    // "Register Now" eyebrow is rendered), else the Now Playing season (pill text), else data-start.
+    var active=-1, current=-1, upcoming=-1;
     slots.forEach(function(slot,i){
       var card=slot.querySelector('.ssc-card')||slot;
       var a=readColor(card,'.ssc-card__meta-accent','data-accent'), t=readColor(card,'.ssc-card__meta-cta','data-cta-text');
@@ -36,8 +38,13 @@
       var hasPill=!!(pill&&!pill.classList.contains('w-condition-invisible')&&(pillText?(pillText.textContent.trim()&&!pillText.classList.contains('w-dyn-bind-empty')):pill.textContent.trim()));
       if(pill&&!hasPill) pill.classList.add('ssc-pill--empty');          // CMS item with no pill text → no pill
       var isCurrent=(c&&/^(true|1|on|yes)$/i.test(c.trim()))||hasPill;
-      if(isCurrent&&active<0) active=i;
+      var reg=card.querySelector('.ssc-card__reg'), r=card.getAttribute('data-registration');
+      var hasReg=(r&&/^(true|1|on|yes)$/i.test(r.trim()))||!!(reg&&!reg.classList.contains('w-condition-invisible')&&reg.textContent.trim());
+      if(hasPill&&hasReg){ hasReg=false; card.classList.add('ssc-card--pill'); }   // both flags on one season: Now Playing wins the slot
+      if(isCurrent&&current<0) current=i;
+      if(hasReg&&upcoming<0) upcoming=i;
     });
+    active=upcoming>=0?upcoming:current;
     if(active<0){active=parseInt(root.getAttribute('data-start'),10); if(isNaN(active)||active>=N) active=Math.min(1,N-1);}
 
     /* ---- carousel engine: ONE continuous position drives every card, so the cards are always exactly
