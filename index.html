@@ -65,6 +65,8 @@
     .ssc *{box-sizing:border-box}
     .ssc-stage{position:relative;height:calc(100 * var(--ssc-vh));overflow:hidden;background:#000;touch-action:pan-y}
 
+    /* ---------- Hero shade: top-down gradient behind the hero copy, gone by the time the copy has faded ---------- */
+    .ssc-hero-shade{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.82) 0%,rgba(0,0,0,.6) 30%,rgba(0,0,0,.25) 50%,rgba(0,0,0,0) 68%);opacity:clamp(0,1 - var(--t-shape) * 2.5,1)}
     /* ---------- Hero copy (fades up + blurs out) ---------- */
     .ssc-hero-copy{
       position:absolute;left:0;top:0;z-index:3;max-width:900px;
@@ -211,6 +213,8 @@
 
   <section class="ssc" id="seasons" data-start="1" aria-label="Brodie seasons">
     <div class="ssc-stage">
+
+      <div class="ssc-hero-shade" aria-hidden="true"></div>
 
       <div class="ssc-hero-copy">
         <p class="ssc-hero-copy__eyebrow">Your game never stops.</p>

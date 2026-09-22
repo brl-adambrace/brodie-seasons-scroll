@@ -5,6 +5,7 @@
   --t-shape:0;--t-content:0;--t-shade:0;--t-sides:0;--t-ui:0}
 @supports (height:1svh){.ssc{--ssc-vh:1svh}}
 .ssc-stage{height:calc(100 * var(--ssc-vh))}
+.ssc-hero-shade{opacity:clamp(0,1 - var(--t-shape) * 2.5,1)}   /* top gradient behind the hero copy fades with it (Designer class holds the gradient) */
 .ssc-track .w-dyn-list,.ssc-track .w-dyn-items{position:absolute;top:0;right:0;bottom:0;left:0}
 .ssc-slot{width:var(--ssc-card-w);height:var(--ssc-card-h);margin:calc(var(--ssc-card-h) / -2 + var(--ssc-nav) / 2) 0 0 calc(var(--ssc-card-w) / -2);will-change:transform}
 .ssc-slot.ssc-left{--dir:-1}
