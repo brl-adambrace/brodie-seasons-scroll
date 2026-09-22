@@ -14,7 +14,7 @@
     ScrollTrigger.config({ignoreMobileResize:true});
     var stage=root.querySelector('.ssc-stage');
     var slots=Array.prototype.slice.call(root.querySelectorAll('.ssc-slot'));
-    var heroCopy=root.querySelector('.ssc-hero-copy');
+    var heroCopy=root.querySelector('.ssc-hero-copy'), heroShade=root.querySelector('.ssc-hero-shade');   // shade = top gradient behind the copy
     var prevBtn=root.querySelector('.ssc-arrow--prev'), nextBtn=root.querySelector('.ssc-arrow--next');
     var N=slots.length; if(!N) return;
     var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -107,13 +107,15 @@
     if(reduce){
       gsap.set(root,{'--t-shape':1,'--t-content':1,'--t-shade':1,'--t-sides':1,'--t-ui':1});
       if(heroCopy) gsap.set(heroCopy,{autoAlpha:0});
+      if(heroShade) gsap.set(heroShade,{autoAlpha:0});
       root.classList.add('ssc-ready');
     }else{
       if(heroCopy) gsap.set(heroCopy,{opacity:1,y:0,filter:'blur(0px)'});
       var tl=gsap.timeline({scrollTrigger:{trigger:root,start:'top top',end:PIN_DISTANCE,pin:true,anticipatePin:1,scrub:debugP!==null?true:SCRUB,
         onUpdate:function(self){root.classList.toggle('ssc-ready',self.progress>0.88);
           if(debugEl&&!debugEl.hidden) debugEl.textContent='transition '+(self.progress*100).toFixed(1)+'%  ·  '+innerWidth+'×'+innerHeight;}}});
-      if(heroCopy) tl.to(heroCopy,{opacity:0,y:-56,filter:'blur(10px)',duration:.28,ease:'power1.in'},0);     // copy fades up + blurs
+      if(heroCopy) tl.to(heroCopy,{opacity:0,y:-56,filter:'blur(10px)',duration:.28,ease:'power1.in'},0);
+      if(heroShade) tl.to(heroShade,{opacity:0,duration:.28,ease:'power1.in'},0);                       // gradient leaves with the copy     // copy fades up + blurs
       tl.to(root,{'--t-shape':1,duration:.62,ease:'power2.inOut'},.04)                                       // full-bleed → card
         .to(root,{'--t-content':1,duration:.20,ease:'power1.out'},.52)                                       // card content fades in together
         .to(root,{'--t-shade':1,duration:.36,ease:'sine.inOut'},.42)                                         // bottom gradient eases in
