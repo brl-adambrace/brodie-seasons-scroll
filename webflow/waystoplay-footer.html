@@ -1,5 +1,4 @@
-<!-- Ways to Play · accordion + background video (page footer).
-     Accordion: one item open at a time; Enter/Space toggle.
+<!-- Ways to Play · background video (page footer).
      Video: nothing downloads until the page has loaded and the section is within half a viewport. The best-fitting
      encode (720p on phones, HEVC where the browser can decode it) is fetched in full, parked on the poster frame
      (data-start = the poster's timestamp) and cross-faded in, then plays. A pause/play control is added in a
@@ -7,16 +6,6 @@
 <script>
 (function(){
   var root=document.querySelector('.wyp'); if(!root) return;
-  var items=Array.prototype.slice.call(root.querySelectorAll('.wyp-item'));
-  function setOpen(item,open){ item.classList.toggle('wyp-open',open); var h=item.querySelector('.wyp-item__head'); if(h) h.setAttribute('aria-expanded',open?'true':'false'); }
-  function toggle(item){ var open=!item.classList.contains('wyp-open'); items.forEach(function(it){ if(it!==item) setOpen(it,false); }); setOpen(item,open); }
-  items.forEach(function(item){
-    var head=item.querySelector('.wyp-item__head'); if(!head) return;
-    setOpen(item,item.classList.contains('wyp-open'));
-    head.addEventListener('click',function(e){ e.preventDefault(); toggle(item); });
-    head.addEventListener('keydown',function(e){ if(e.key===' '||e.key==='Spacebar'){ e.preventDefault(); toggle(item); } });
-  });
-
   var video=root.querySelector('.wyp-video'), wrap=root.querySelector('.wyp-video-wrap'); if(!video||!wrap) return;
   var d=video.dataset, start=parseFloat(d.start)||0;
   var conn=navigator.connection||{}, saveData=!!conn.saveData||/(^|-)2g$/.test(conn.effectiveType||'');

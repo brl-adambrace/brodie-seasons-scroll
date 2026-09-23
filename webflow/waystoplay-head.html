@@ -1,14 +1,13 @@
-<!-- Ways to Play · behaviour layer (page head): accordion motion, chevron, sticky video sizing, deferred video fade-in, pause control -->
+<!-- Ways to Play · behaviour layer (page head): sticky video sizing, mobile scroll variant, deferred video fade-in, pause control -->
 <style>
 @supports (height:1svh){.wyp{min-height:100svh}.wyp-video-wrap{height:100svh}.wyp-inner{min-height:100svh}}
-.wyp-item__body{transition:grid-template-rows .6s cubic-bezier(.2,.6,.2,1)}
-.wyp-item.wyp-open .wyp-item__body{grid-template-rows:1fr}
-.wyp-item__panel{opacity:0;transform:translateY(6px);transition:opacity .45s cubic-bezier(.2,.6,.2,1) .05s,transform .45s cubic-bezier(.2,.6,.2,1) .05s}
-.wyp-item.wyp-open .wyp-item__panel{opacity:1;transform:none}
-.wyp-item__chev{transition:transform .5s cubic-bezier(.2,.6,.2,1),margin .5s cubic-bezier(.2,.6,.2,1)}
-.wyp-item.wyp-open .wyp-item__chev{transform:rotate(-135deg);margin:8px 8px 0 0}
-.wyp-item__head:focus-visible{outline:2px solid #fff;outline-offset:4px;border-radius:4px}
-.wyp-cta:active,.wyp-btn:active{transform:scale(.96)}
+.wyp-cta:active,.wyp-card__btn:active{transform:scale(.96)}
+/* mobile option B: add the combo class wyp--scroll to the section to swap the stacked cards for a horizontal, snapping row */
+@media (max-width:767px){
+.wyp.wyp--scroll .wyp-cards{display:flex;flex-direction:row;align-items:stretch;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:24px;margin:0 -24px;padding:0 24px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.wyp.wyp--scroll .wyp-cards::-webkit-scrollbar{display:none}
+.wyp.wyp--scroll .wyp-card{flex:0 0 78vw;min-height:0;scroll-snap-align:start}
+}
 /* video: hidden until the whole file is downloaded and parked on the poster frame, then cross-fades in */
 .wyp-video{opacity:0;transition:opacity .8s ease}
 .wyp.wyp-video-on .wyp-video{opacity:1}
@@ -26,5 +25,4 @@
 .wyp.wyp-paused .wyp-toggle .wyp-toggle__play{display:block}
 .wyp.wyp-paused .wyp-toggle .wyp-toggle__pause{display:none}
 @media (max-width:767px){.wyp-ctl-bar{bottom:16px}.wyp-toggle{left:16px;width:40px;height:40px}.wyp-toggle svg{width:18px;height:18px}}
-@media (prefers-reduced-motion:reduce){.wyp-item__body,.wyp-item__panel,.wyp-item__chev{transition:none}}
 </style>

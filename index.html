@@ -658,45 +658,41 @@
 .wyp-poster{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;max-width:none;object-fit:cover;display:block}
 .wyp-video{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover;display:block}
 .wyp-scrim{position:absolute;top:0;right:0;bottom:0;left:0;background-color:rgba(0,0,0,0.45)}
-.wyp-inner{position:relative;display:flex;align-items:flex-start;gap:16px;padding:80px;min-height:100vh}
-.wyp-intro{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:24px;padding-right:42px}
+.wyp-inner{position:relative;display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;gap:64px;padding:80px;min-height:100vh}
+.wyp-intro{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;gap:24px;padding-right:42px}
 .wyp-intro__text{display:flex;flex-direction:column;gap:8px;width:100%}
 .wyp-eyebrow{margin:0;font-weight:500;font-size:18px;line-height:1.4;color:#6b6765}
 .wyp-title{margin:0;font-weight:600;font-size:56px;line-height:1.1;letter-spacing:-2px;color:#fff;text-transform:none}
 .wyp-sub{margin:0;font-weight:600;font-size:20px;line-height:1.35;color:#6b6765}
 .wyp-cta{display:flex;align-items:center;justify-content:center;min-width:192px;height:48px;padding:0 24px;border-radius:48px;background-color:#eae8e8;color:#000;font-weight:600;font-size:16px;line-height:1.5;text-decoration:none;transition:transform 0.15s ease-out,background-color 0.2s ease-out}
 .wyp-cta:hover{background-color:#fff}
-.wyp-list{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:16px}
-.wyp-item{border-bottom:1px solid rgba(228,225,225,0.5);display:flex;flex-direction:column}
-.wyp-item__head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:24px;color:#fff;text-decoration:none;cursor:pointer}
-.wyp-item__text{display:flex;flex-direction:column;gap:8px;min-width:0}
-.wyp-item__title{margin:0;font-weight:600;font-size:36px;line-height:1.2;letter-spacing:-0.36px;color:#fff}
-.wyp-item__sub{margin:0;font-weight:500;font-size:18px;line-height:1.4;color:#6c6564}
-.wyp-item__chev{width:12px;height:12px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg);margin:0 8px 8px 0;flex:0 0 auto}
-.wyp-item__body{display:grid;grid-template-rows:0fr}
-.wyp-item__inner{overflow:hidden;min-height:0}
-.wyp-item__panel{display:flex;flex-direction:column;gap:32px;padding:8px 0 32px 0}
-.wyp-item__copy-wrap{display:flex;flex-direction:column;gap:24px}
-.wyp-item__copy{margin:0;font-weight:400;font-size:18px;line-height:1.55;color:#ded8d7}
-.wyp-item__actions{display:flex;gap:16px;width:100%}
-.wyp-btn{flex:1 1 0;display:flex;align-items:center;justify-content:center;height:48px;padding:0 16px;border-radius:48px;background-color:#eae8e8;color:#000;font-weight:600;font-size:16px;line-height:1.5;text-decoration:none;transition:transform 0.15s ease-out,background-color 0.2s ease-out}
-.wyp-btn:hover{background-color:#fff}
-.wyp-btn--ghost{background-color:transparent;border:1px solid #ded8d7;color:#fff}
-.wyp-btn--ghost:hover{background-color:rgba(255,255,255,0.1)}
-@media screen and (max-width:991px){.wyp-inner{flex-direction:column;gap:48px;padding:64px 48px}.wyp-intro{padding-right:0}.wyp-title{font-size:44px;letter-spacing:-1.5px}.wyp-item__title{font-size:30px}}
-@media screen and (max-width:767px){.wyp-inner{padding:56px 24px;gap:40px}.wyp-title{font-size:36px;letter-spacing:-1px}.wyp-sub{font-size:18px}.wyp-eyebrow{font-size:15px}.wyp-item__title{font-size:26px;letter-spacing:-0.2px}.wyp-item__sub{font-size:16px}.wyp-item__copy{font-size:16px}.wyp-item__actions{flex-direction:column;gap:12px}.wyp-btn{flex:0 0 auto;width:100%}.wyp-cta{width:100%}}
+.wyp-cards{display:flex;align-items:stretch;gap:16px;width:100%}
+.wyp-card{flex:1 1 0;min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:24px;min-height:333px;border-radius:8px;background-color:rgba(0,0,0,0.8)}
+.wyp-card__body{display:flex;flex-direction:column;gap:8px}
+.wyp-card__head{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.wyp-badge{display:inline-flex;align-items:center;justify-content:center;margin:0;padding:4px 8px;border-radius:128px;font-weight:600;font-size:11px;line-height:1.2;letter-spacing:0.11px;white-space:nowrap}
+.wyp-badge--gold{background-image:linear-gradient(8deg,#e5c89c 43.75%,#bf8833 71.875%,#5e4319 106.25%);color:#4e0e11}
+.wyp-badge--green{background-color:#9ce2a3;color:#27522a}
+.wyp-badge--blue{background-color:#b0eeff;color:#00637a}
+.wyp-badge--purple{background-color:#a35bff;color:#2e007a}
+.wyp-card__title{margin:0;font-weight:600;font-size:36px;line-height:1.2;letter-spacing:-0.36px;color:#fff}
+.wyp-card__sub{margin:0;font-weight:500;font-size:18px;line-height:1.4;color:#6c6564}
+.wyp-card__copy{margin:0;font-weight:400;font-size:16px;line-height:1.5;color:#ded8d7}
+.wyp-card__btn{display:inline-flex;align-items:center;justify-content:center;width:175px;max-width:100%;height:48px;padding:0 16px;border:1px solid #ded8d7;border-radius:48px;background-color:transparent;color:#fff;font-weight:600;font-size:16px;line-height:1.5;text-decoration:none;transition:transform 0.15s ease-out,background-color 0.2s ease-out}
+.wyp-card__btn:hover{background-color:rgba(255,255,255,0.1)}
+@media screen and (max-width:991px){.wyp-inner{gap:56px;padding:64px 48px}.wyp-intro{padding-right:0}.wyp-title{font-size:44px;letter-spacing:-1.5px}.wyp-cards{display:grid;grid-template-columns:1fr 1fr}.wyp-card{min-height:0}.wyp-card__title{font-size:30px}}
+@media screen and (max-width:767px){.wyp-inner{padding:56px 24px;gap:40px}.wyp-title{font-size:36px;letter-spacing:-1px}.wyp-sub{font-size:18px}.wyp-eyebrow{font-size:15px}.wyp-cards{grid-template-columns:1fr;gap:24px}.wyp-card__title{font-size:26px;letter-spacing:-0.2px}.wyp-card__sub{font-size:16px}.wyp-cta{width:100%}}
 @media screen and (max-width:479px){.wyp-title{font-size:32px}}
   </style>
   <style>
 @supports (height:1svh){.wyp{min-height:100svh}.wyp-video-wrap{height:100svh}.wyp-inner{min-height:100svh}}
-.wyp-item__body{transition:grid-template-rows .6s cubic-bezier(.2,.6,.2,1)}
-.wyp-item.wyp-open .wyp-item__body{grid-template-rows:1fr}
-.wyp-item__panel{opacity:0;transform:translateY(6px);transition:opacity .45s cubic-bezier(.2,.6,.2,1) .05s,transform .45s cubic-bezier(.2,.6,.2,1) .05s}
-.wyp-item.wyp-open .wyp-item__panel{opacity:1;transform:none}
-.wyp-item__chev{transition:transform .5s cubic-bezier(.2,.6,.2,1),margin .5s cubic-bezier(.2,.6,.2,1)}
-.wyp-item.wyp-open .wyp-item__chev{transform:rotate(-135deg);margin:8px 8px 0 0}
-.wyp-item__head:focus-visible{outline:2px solid #fff;outline-offset:4px;border-radius:4px}
-.wyp-cta:active,.wyp-btn:active{transform:scale(.96)}
+.wyp-cta:active,.wyp-card__btn:active{transform:scale(.96)}
+/* mobile option B: add the combo class wyp--scroll to the section to swap the stacked cards for a horizontal, snapping row */
+@media (max-width:767px){
+.wyp.wyp--scroll .wyp-cards{display:flex;flex-direction:row;align-items:stretch;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:24px;margin:0 -24px;padding:0 24px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.wyp.wyp--scroll .wyp-cards::-webkit-scrollbar{display:none}
+.wyp.wyp--scroll .wyp-card{flex:0 0 78vw;min-height:0;scroll-snap-align:start}
+}
 /* video: hidden until the whole file is downloaded and parked on the poster frame, then cross-fades in */
 .wyp-video{opacity:0;transition:opacity .8s ease}
 .wyp.wyp-video-on .wyp-video{opacity:1}
@@ -714,7 +710,6 @@
 .wyp.wyp-paused .wyp-toggle .wyp-toggle__play{display:block}
 .wyp.wyp-paused .wyp-toggle .wyp-toggle__pause{display:none}
 @media (max-width:767px){.wyp-ctl-bar{bottom:16px}.wyp-toggle{left:16px;width:40px;height:40px}.wyp-toggle svg{width:18px;height:18px}}
-@media (prefers-reduced-motion:reduce){.wyp-item__body,.wyp-item__panel,.wyp-item__chev{transition:none}}
 </style>
 <section class="wyp" id="ways-to-play">
   <div class="wyp-media">
@@ -735,65 +730,49 @@
         <h2 class="wyp-title">Ways to Play</h2>
         <p class="wyp-sub">Wherever you are in the game, there&rsquo;s a version of the league built for you.</p>
       </div>
-      <a class="wyp-cta" href="https://athletes.brodierec.com/registrations/new">Find Your Game</a>
+      <a class="wyp-cta" href="https://www.brodierec.com/ways-to-play">Find Your Game</a>
     </div>
-    <div class="wyp-list">
-      <div class="wyp-item">
-        <a href="#" class="wyp-item__head" role="button" aria-expanded="false">
-          <div class="wyp-item__text"><h3 class="wyp-item__title">Start A Team</h3><p class="wyp-item__sub">Run Your Crew. Become a Captain.</p></div>
-          <div class="wyp-item__chev"></div>
-        </a>
-        <div class="wyp-item__body"><div class="wyp-item__inner"><div class="wyp-item__panel">
-          <div class="wyp-item__copy-wrap">
-            <p class="wyp-item__copy">Recruit your crew and lock in your roster. Name your team and choose your colours. Your League Manager sets you up from there.</p>
-            <p class="wyp-item__copy">Play for free when you recruit 9 players each season. Plus, you earn $25 for every new player you bring to Brodie.</p>
-          </div>
-          <div class="wyp-item__actions"><a class="wyp-btn" href="https://athletes.brodierec.com/registrations/new/captain/league-details">Become a Captain</a><a class="wyp-btn wyp-btn--ghost" href="https://www.brodierec.com/start-a-team">Learn More</a></div>
-        </div></div></div>
-      </div>
-      <div class="wyp-item">
-        <a href="#" class="wyp-item__head" role="button" aria-expanded="false">
-          <div class="wyp-item__text"><h3 class="wyp-item__title">Join A Team</h3><p class="wyp-item__sub">No team? No Problem. Show up &amp; play with an Ambassador.</p></div>
-          <div class="wyp-item__chev"></div>
-        </a>
-        <div class="wyp-item__body"><div class="wyp-item__inner"><div class="wyp-item__panel">
-          <div class="wyp-item__copy-wrap">
-            <p class="wyp-item__copy">Browse open rosters in your division and city. Request to join with one tap. Your Ambassador connects you with the squad.</p>
-            <p class="wyp-item__copy">Recruited by a captain? Enter your team code at registration to join the roster.</p>
-          </div>
-          <div class="wyp-item__actions"><a class="wyp-btn" href="https://athletes.brodierec.com/registrations/new/ways-to-play">Join a Team</a><a class="wyp-btn wyp-btn--ghost" href="https://www.brodierec.com/join-a-team">Learn More</a></div>
-        </div></div></div>
-      </div>
-      <div class="wyp-item">
-        <a href="#" class="wyp-item__head" role="button" aria-expanded="false">
-          <div class="wyp-item__text"><h3 class="wyp-item__title">Drop-In Run</h3><p class="wyp-item__sub">Experience BRODIE&reg; for the first time.</p></div>
-          <div class="wyp-item__chev"></div>
-        </a>
-        <div class="wyp-item__body"><div class="wyp-item__inner"><div class="wyp-item__panel">
-          <div class="wyp-item__copy-wrap">
-            <p class="wyp-item__copy">Need one more reason? Drop-In is a single game, free the first time, no commitment required. Get the full BRODIE&reg; experience before you decide.</p>
-            <p class="wyp-item__copy">Sign up in 60 seconds by choosing your location &amp; skill level. Want to keep playing? Join your roster for the rest of the season with a personalized offer price.</p>
-          </div>
-          <div class="wyp-item__actions"><a class="wyp-btn" href="https://athletes.brodierec.com/registrations/new/drop-in/league-details">Find a Drop-In</a><a class="wyp-btn wyp-btn--ghost" href="/locations">Learn More</a></div>
-        </div></div></div>
-      </div>
+    <div class="wyp-cards">
+      <article class="wyp-card">
+        <div class="wyp-card__body">
+          <div class="wyp-card__head"><p class="wyp-badge wyp-badge--gold">Join The Captains Club</p><h3 class="wyp-card__title">Start A Team</h3></div>
+          <p class="wyp-card__sub">Run Your Crew. Become a Captain.</p>
+          <p class="wyp-card__copy">Recruit your crew and lock in your roster. Name your team and choose your colours. Your League Manager sets you up from there.</p>
+        </div>
+        <a class="wyp-card__btn" href="https://athletes.brodierec.com/registrations/new/captain/league-details">Start A Team</a>
+      </article>
+      <article class="wyp-card">
+        <div class="wyp-card__body">
+          <div class="wyp-card__head"><p class="wyp-badge wyp-badge--green">Play With An Ambassador</p><h3 class="wyp-card__title">Join A Team</h3></div>
+          <p class="wyp-card__sub">No team? No Problem. Show up &amp; play with an Ambassador.</p>
+          <p class="wyp-card__copy">Browse open rosters in your division and city. Request to join with one tap. Your Ambassador connects you with the squad.</p>
+        </div>
+        <a class="wyp-card__btn" href="https://athletes.brodierec.com/registrations/new/ways-to-play">Join A Team</a>
+      </article>
+      <article class="wyp-card">
+        <div class="wyp-card__body">
+          <div class="wyp-card__head"><p class="wyp-badge wyp-badge--blue">First Game Free</p><h3 class="wyp-card__title">Drop-In Run</h3></div>
+          <p class="wyp-card__sub">Experience BRODIE&reg; for the first time.</p>
+          <p class="wyp-card__copy">Need one more reason? Drop-In is a single game, free the first time, no commitment required. Get the full BRODIE&reg; experience before you decide.</p>
+        </div>
+        <a class="wyp-card__btn" href="https://athletes.brodierec.com/registrations/new/drop-in/league-details">Find A Game</a>
+      </article>
+      <article class="wyp-card">
+        <div class="wyp-card__body">
+          <div class="wyp-card__head"><p class="wyp-badge wyp-badge--purple">Join The Community</p><h3 class="wyp-card__title">Events</h3></div>
+          <p class="wyp-card__sub">The court&rsquo;s only half the experience.</p>
+          <p class="wyp-card__copy">Where BRODIE happens off the hardwood. Events are how athletes stay connected between games. How strangers become squad. How you find your people.</p>
+        </div>
+        <a class="wyp-card__btn" href="/events">Browse Events</a>
+      </article>
     </div>
   </div>
 </section>
 
+  <script>if(/[?&]wyp=scroll\b/.test(location.search)){var w=document.querySelector(".wyp");if(w)w.classList.add("wyp--scroll");}</script>
   <script>
 (function(){
   var root=document.querySelector('.wyp'); if(!root) return;
-  var items=Array.prototype.slice.call(root.querySelectorAll('.wyp-item'));
-  function setOpen(item,open){ item.classList.toggle('wyp-open',open); var h=item.querySelector('.wyp-item__head'); if(h) h.setAttribute('aria-expanded',open?'true':'false'); }
-  function toggle(item){ var open=!item.classList.contains('wyp-open'); items.forEach(function(it){ if(it!==item) setOpen(it,false); }); setOpen(item,open); }
-  items.forEach(function(item){
-    var head=item.querySelector('.wyp-item__head'); if(!head) return;
-    setOpen(item,item.classList.contains('wyp-open'));
-    head.addEventListener('click',function(e){ e.preventDefault(); toggle(item); });
-    head.addEventListener('keydown',function(e){ if(e.key===' '||e.key==='Spacebar'){ e.preventDefault(); toggle(item); } });
-  });
-
   var video=root.querySelector('.wyp-video'), wrap=root.querySelector('.wyp-video-wrap'); if(!video||!wrap) return;
   var d=video.dataset, start=parseFloat(d.start)||0;
   var conn=navigator.connection||{}, saveData=!!conn.saveData||/(^|-)2g$/.test(conn.effectiveType||'');
