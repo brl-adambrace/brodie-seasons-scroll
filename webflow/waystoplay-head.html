@@ -2,11 +2,13 @@
 <style>
 @supports (height:1svh){.wyp{min-height:100svh}.wyp-video-wrap{height:100svh}.wyp-inner{min-height:100svh}}
 .wyp-cta:active,.wyp-card__btn:active{transform:scale(.96)}
-/* mobile option B: add the combo class wyp--scroll to the section to swap the stacked cards for a horizontal, snapping row */
+/* mobile: the cards are a horizontal, snapping row that runs edge to edge (Adam's pick); the row bleeds through the
+   24px side padding with width:auto so it is not clipped at the column's content box. Add the combo class wyp--stack
+   to the section to fall back to the stacked single column instead. */
 @media (max-width:767px){
-.wyp.wyp--scroll .wyp-cards{display:flex;flex-direction:row;align-items:stretch;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:24px;margin:0 -24px;padding:0 24px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.wyp.wyp--scroll .wyp-cards::-webkit-scrollbar{display:none}
-.wyp.wyp--scroll .wyp-card{flex:0 0 78vw;min-height:0;scroll-snap-align:start}
+.wyp:not(.wyp--stack) .wyp-cards{display:flex;flex-direction:row;align-items:stretch;gap:12px;width:auto;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:24px;margin:0 -24px;padding:0 24px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.wyp:not(.wyp--stack) .wyp-cards::-webkit-scrollbar{display:none}
+.wyp:not(.wyp--stack) .wyp-card{flex:0 0 78vw;min-height:0;scroll-snap-align:start}
 }
 /* video: hidden until the whole file is downloaded and parked on the poster frame, then cross-fades in */
 .wyp-video{opacity:0;transition:opacity .8s ease}
